@@ -153,6 +153,7 @@ const Chat = () => {
     setLoading(true);
 
     try {
+      // Add user message
       const { error: messageError } = await supabase
         .from('messages')
         .insert([{
@@ -164,15 +165,43 @@ const Chat = () => {
 
       if (messageError) throw messageError;
 
-      const { error: aiError } = await supabase
+      // Get conversation history for context
+      const { data: historyData } = await supabase
+        .from('messages')
+        .select('role, content')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true })
+        .limit(10);
+
+      const conversationHistory = historyData?.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      })) || [];
+
+      // Get AI response
+      const { data: aiData, error: aiError } = await supabase.functions.invoke('chat', {
+        body: { 
+          messages: [{ role: 'user', content }],
+          conversationHistory
+        }
+      });
+
+      if (aiError) throw aiError;
+
+      if (aiData?.error) {
+        throw new Error(aiData.error);
+      }
+
+      // Save AI response
+      const { error: saveError } = await supabase
         .from('messages')
         .insert([{
           conversation_id: conversationId,
           role: 'assistant',
-          content: 'سلام! من دستیار هوشمند شما هستم. چطور می‌توانم کمکتان کنم؟'
+          content: aiData.message || 'متأسفانه نتوانستم پاسخ مناسبی تولید کنم.'
         }]);
 
-      if (aiError) throw aiError;
+      if (saveError) throw saveError;
 
       if (messages.length === 0) {
         await supabase
