@@ -178,22 +178,24 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        
-        toast({
-          title: 'ضبط صدا',
-          description: 'در حال پردازش صدا...',
-        });
-
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm;codecs=opus' });
+        await handleAudioUpload(audioBlob);
         stream.getTracks().forEach(track => track.stop());
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(100);
       setIsRecording(true);
-    } catch (error: any) {
+
       toast({
-        title: 'خطا',
-        description: 'دسترسی به میکروفون رد شد',
+        title: '🎙️ ضبط شروع شد',
+        description: 'در حال ضبط صدای شما...',
+        duration: 2000
+      });
+    } catch (error: any) {
+      console.error('Recording error:', error);
+      toast({
+        title: 'خطا در ضبط صدا',
+        description: 'لطفاً دسترسی به میکروفون را بررسی کنید',
         variant: 'destructive'
       });
     }
@@ -203,6 +205,73 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      toast({
+        title: '⏹️ ضبط متوقف شد',
+        description: 'در حال تبدیل به متن...'
+      });
+    }
+  };
+
+  const handleAudioUpload = async (audioBlob: Blob) => {
+    const loadingToast = toast({
+      title: '⏳ در حال پردازش...',
+      description: 'صدای شما در حال تبدیل به متن است',
+      duration: 10000
+    });
+
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+
+      reader.onloadend = async () => {
+        const base64Audio = reader.result?.toString().split(',')[1];
+        if (!base64Audio) {
+          throw new Error('خطا در خواندن فایل صوتی');
+        }
+
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-audio`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+            },
+            body: JSON.stringify({ audio: base64Audio })
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'خطا در تبدیل صدا به متن');
+        }
+
+        const data = await response.json();
+
+        if (data?.text) {
+          setMessage(prev => prev + (prev ? ' ' : '') + data.text);
+          toast({
+            title: '✅ صدا تبدیل شد',
+            description: 'متن به فیلد پیام اضافه شد',
+            duration: 3000
+          });
+        } else {
+          throw new Error('متنی از صدا استخراج نشد');
+        }
+      };
+
+      reader.onerror = () => {
+        throw new Error('خطا در خواندن فایل صوتی');
+      };
+
+    } catch (error: any) {
+      console.error('Audio transcription error:', error);
+      toast({
+        title: 'خطا در تبدیل صدا',
+        description: error.message || 'لطفاً دوباره تلاش کنید',
+        variant: 'destructive',
+        duration: 5000
+      });
     }
   };
 
