@@ -7,7 +7,7 @@ import ChatInput from '@/components/ChatInput';
 import AdDisplay from '@/components/AdDisplay';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { FileDown, Loader2, Menu, BookOpen, Newspaper } from 'lucide-react';
+import { FileDown, Loader2, Menu, MessageSquare, Search, ImageIcon, BookOpen, Newspaper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 
@@ -165,43 +165,105 @@ const Chat = () => {
 
       if (messageError) throw messageError;
 
-      // Get conversation history for context
-      const { data: historyData } = await supabase
-        .from('messages')
-        .select('role, content')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true })
-        .limit(10);
+      // Get AI response with streaming
+      const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-ai`;
 
-      const conversationHistory = historyData?.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      })) || [];
-
-      // Get AI response
-      const { data: aiData, error: aiError } = await supabase.functions.invoke('chat', {
-        body: { 
-          messages: [{ role: 'user', content }],
-          conversationHistory
-        }
+      const resp = await fetch(CHAT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({
+          messages: messages.map(m => ({
+            role: m.role,
+            content: m.content,
+            ...(m.image_url && { image_url: m.image_url })
+          })).concat([{ role: 'user', content, ...(imageUrl && { image_url: imageUrl }) }]),
+        }),
       });
 
-      if (aiError) throw aiError;
-
-      if (aiData?.error) {
-        throw new Error(aiData.error);
+      if (!resp.ok || !resp.body) {
+        let errText = 'خطا در دریافت پاسخ';
+        try {
+          const errorData = await resp.json();
+          errText = errorData.error || errText;
+        } catch {}
+        throw new Error(errText);
       }
 
-      // Save AI response
-      const { error: saveError } = await supabase
-        .from('messages')
-        .insert([{
-          conversation_id: conversationId,
-          role: 'assistant',
-          content: aiData.message || 'متأسفانه نتوانستم پاسخ مناسبی تولید کنم.'
-        }]);
+      // Create temporary AI message
+      const tempMessageId = crypto.randomUUID();
+      let fullResponse = '';
 
-      if (saveError) throw saveError;
+      // Process streaming response
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = '';
+      let streamDone = false;
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith('\r')) line = line.slice(0, -1);
+          if (line.startsWith(':') || line.trim() === '') continue;
+          if (!line.startsWith('data: ')) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === '[DONE]') {
+            streamDone = true;
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              fullResponse += content;
+              // Update messages in real-time
+              setMessages(prev => {
+                const exists = prev.find(m => m.id === tempMessageId);
+                if (exists) {
+                  return prev.map(m =>
+                    m.id === tempMessageId
+                      ? { ...m, content: fullResponse }
+                      : m
+                  );
+                }
+                return [...prev, {
+                  id: tempMessageId,
+                  role: 'assistant' as const,
+                  content: fullResponse,
+                  created_at: new Date().toISOString()
+                }];
+              });
+            }
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+
+      // Save final AI response to database
+      if (fullResponse) {
+        await supabase
+          .from('messages')
+          .insert([{
+            conversation_id: conversationId,
+            role: 'assistant',
+            content: fullResponse
+          }]);
+      }
 
       if (messages.length === 0) {
         await supabase
