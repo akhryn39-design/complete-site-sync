@@ -296,7 +296,7 @@ const Chat = () => {
             <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden">
               <Menu className="h-5 w-5" />
             </Button>
-            <h2 className="text-lg gradient-text font-mono font-extralight">AS</h2>
+            <h2 className="text-lg gradient-text font-mono text-[#d021e3] bg-[#e908d3] text-justify font-extrabold">AS</h2>
           </div>
 
           <div className="flex gap-2">
