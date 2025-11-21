@@ -108,7 +108,7 @@ const ChatMessage = ({
   };
   return <div className={`flex gap-3 p-4 rounded-2xl transition-all ${isUser ? 'bg-primary/10 ml-8' : 'bg-secondary/10 mr-8'}`} onMouseEnter={() => setShowActions(true)} onMouseLeave={() => setShowActions(false)}>
       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${isUser ? 'bg-primary' : 'bg-secondary'}`}>
-        {isUser ? <Monitor className="w-5 h-5 text-black bg-[#06d406]" /> : <Bot className="w-5 h-5 text-secondary-foreground" />}
+        {isUser ? <Monitor className="w-5 h-5 bg-slate-50/0 text-[#1ce929]" /> : <Bot className="w-5 h-5 text-secondary-foreground" />}
       </div>
 
       <div className="flex-1 min-w-0">
