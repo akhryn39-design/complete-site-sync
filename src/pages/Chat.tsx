@@ -308,10 +308,7 @@ const Chat = () => {
               <Newspaper className="h-4 w-4" />
               اخبار
             </Button>
-            {messages.length > 0 && <Button variant="outline" size="sm" onClick={exportToPDF} className="gap-2">
-                <FileDown className="h-4 w-4" />
-                خروجی PDF
-              </Button>}
+            {messages.length > 0}
           </div>
         </div>
 
