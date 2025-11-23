@@ -110,7 +110,7 @@ ${materialsContext}
       return msg;
     });
 
-    // Use gemini-2.5-pro for vision capabilities
+    // Use gemini-3-pro-preview for enhanced vision and reasoning
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -118,14 +118,14 @@ ${materialsContext}
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "google/gemini-3-pro-preview",
         messages: [
           { role: "system", content: systemPrompt },
           ...transformedMessages
         ],
         stream: true,
-        temperature: 0.7,
-        max_tokens: 4000,
+        temperature: 0.8,
+        max_tokens: 8000,
       }),
     });
 
