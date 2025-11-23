@@ -20,6 +20,7 @@ export const SystemSettings = () => {
   const [settings, setSettings] = useState<SystemSetting[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -75,13 +76,20 @@ export const SystemSettings = () => {
     setSaving(false);
   };
 
-  const groupedSettings = settings.reduce((acc, setting) => {
-    if (!acc[setting.category]) {
-      acc[setting.category] = [];
-    }
-    acc[setting.category].push(setting);
-    return acc;
-  }, {} as Record<string, SystemSetting[]>);
+  const groupedSettings = settings
+    .filter(s => 
+      searchTerm === '' || 
+      s.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.category.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .reduce((acc, setting) => {
+      if (!acc[setting.category]) {
+        acc[setting.category] = [];
+      }
+      acc[setting.category].push(setting);
+      return acc;
+    }, {} as Record<string, SystemSetting[]>);
 
   if (loading) {
     return (
@@ -97,13 +105,21 @@ export const SystemSettings = () => {
         <div>
           <h2 className="text-2xl font-bold">تنظیمات سیستم</h2>
           <p className="text-sm text-muted-foreground">
-            مدیریت تنظیمات عمومی سیستم
+            مدیریت {settings.length} تنظیم در {Object.keys(groupedSettings).length} دسته
           </p>
         </div>
-        <Button onClick={handleSaveAll} disabled={saving}>
-          <Save className="mr-2 h-4 w-4" />
-          {saving ? 'در حال ذخیره...' : 'ذخیره همه'}
-        </Button>
+        <div className="flex gap-2">
+          <Input
+            placeholder="جستجو در تنظیمات..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-64"
+          />
+          <Button onClick={handleSaveAll} disabled={saving}>
+            <Save className="mr-2 h-4 w-4" />
+            {saving ? 'در حال ذخیره...' : 'ذخیره همه'}
+          </Button>
+        </div>
       </div>
 
       {Object.entries(groupedSettings).map(([category, categorySettings]) => (
@@ -126,6 +142,13 @@ export const SystemSettings = () => {
                   <Switch
                     checked={setting.value}
                     onCheckedChange={(checked) => updateSetting(setting.id, checked)}
+                  />
+                ) : typeof setting.value === 'number' ? (
+                  <Input
+                    type="number"
+                    value={setting.value?.toString() || ''}
+                    onChange={(e) => updateSetting(setting.id, parseFloat(e.target.value) || 0)}
+                    className="w-64"
                   />
                 ) : (
                   <Input
