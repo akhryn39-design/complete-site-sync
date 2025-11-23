@@ -85,10 +85,20 @@ const Materials = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      if (selectedFile.type !== 'application/pdf') {
+      const allowedTypes = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'image/jpeg',
+        'image/png',
+        'image/webp'
+      ];
+      
+      if (!allowedTypes.includes(selectedFile.type)) {
         toast({
           title: 'فرمت نامعتبر',
-          description: 'لطفاً فقط فایل PDF آپلود کنید',
+          description: 'فقط فایل‌های PDF, DOCX, PPTX, XLSX و تصاویر مجاز هستند',
           variant: 'destructive',
         });
         return;
@@ -173,7 +183,19 @@ const Materials = () => {
         .from('educational-files')
         .getPublicUrl(material.file_path);
 
-      window.open(data.publicUrl, '_blank');
+      const ext = material.file_path.split('.').pop()?.toLowerCase();
+      const isViewable = ['pdf', 'jpg', 'jpeg', 'png', 'webp'].includes(ext || '');
+      
+      if (isViewable) {
+        window.open(data.publicUrl, '_blank');
+      } else {
+        const link = document.createElement('a');
+        link.href = data.publicUrl;
+        link.download = material.title;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     } catch (error: any) {
       toast({
         title: 'خطا در دانلود',
@@ -271,9 +293,12 @@ const Materials = () => {
                   <div>
                     <Input
                       type="file"
-                      accept=".pdf"
+                      accept=".pdf,.docx,.pptx,.xlsx,image/jpeg,image/png,image/webp"
                       onChange={handleFileChange}
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      فرمت‌های مجاز: PDF, DOCX, PPTX, XLSX, JPG, PNG, WEBP (حداکثر ۲۰۰ مگابایت)
+                    </p>
                   </div>
                   <Button
                     onClick={handleUpload}
