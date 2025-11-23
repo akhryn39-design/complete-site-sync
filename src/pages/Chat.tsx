@@ -179,8 +179,19 @@ const Chat = () => {
           messages: messages.map(m => ({
             role: m.role,
             content: m.content,
-            ...(m.image_url && { image_url: m.image_url })
-          })).concat([{ role: 'user', content, ...(imageUrl && { image_url: imageUrl }) }]),
+            ...(m.image_url && { 
+              image_url: m.image_url,
+              type: 'image_url'
+            })
+          })).concat([{ 
+            role: 'user', 
+            content,
+            ...(imageUrl && { 
+              image_url: imageUrl,
+              type: 'image_url'
+            })
+          }]),
+          userId: user?.id
         }),
       });
 
