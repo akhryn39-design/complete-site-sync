@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
-import { Copy, Pencil, Trash2, Check, User, Bot, FileDown } from 'lucide-react';
+import { Copy, Pencil, Trash2, Check, User, Sparkles, FileDown } from 'lucide-react';
 import { useToast } from './ui/use-toast';
 import { Textarea } from './ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
@@ -149,9 +149,9 @@ const ChatMessage = ({ id, role, content, imageUrl, onUpdate }: ChatMessageProps
       onMouseLeave={() => setShowActions(false)}
     >
       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-        isUser ? 'bg-primary' : 'bg-secondary'
+        isUser ? 'bg-primary' : 'bg-gradient-to-br from-secondary via-accent to-primary animate-pulse-slow'
       }`}>
-        {isUser ? <User className="w-5 h-5 text-primary-foreground" /> : <Bot className="w-5 h-5 text-secondary-foreground" />}
+        {isUser ? <User className="w-5 h-5 text-primary-foreground" /> : <Sparkles className="w-5 h-5 text-secondary-foreground animate-pulse" />}
       </div>
 
       <div className="flex-1 min-w-0">
