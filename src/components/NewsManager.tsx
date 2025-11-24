@@ -31,6 +31,7 @@ export function NewsManager() {
   const [news, setNews] = useState<News[]>([]);
   const [editingNews, setEditingNews] = useState<News | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -58,6 +59,40 @@ export function NewsManager() {
     }
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${type}s/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('chat-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('chat-images')
+        .getPublicUrl(filePath);
+
+      if (type === 'image') {
+        setFormData({ ...formData, image_url: publicUrl });
+      } else {
+        setFormData({ ...formData, video_url: publicUrl });
+      }
+
+      toast.success(`${type === 'image' ? 'تصویر' : 'ویدیو'} آپلود شد`);
+    } catch (error: any) {
+      toast.error(`خطا در آپلود ${type === 'image' ? 'تصویر' : 'ویدیو'}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -81,7 +116,7 @@ export function NewsManager() {
       setIsDialogOpen(false);
       resetForm();
     } catch (error: any) {
-      toast.error("خطا در ذخیره خبر");
+      toast.error("خطا در ذخیره خبر: " + error.message);
     }
   };
 
@@ -164,19 +199,35 @@ export function NewsManager() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>URL تصویر</Label>
+                  <Label>تصویر</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, 'image')}
+                    disabled={uploading}
+                    className="mb-2"
+                  />
                   <Input
                     value={formData.image_url}
                     onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    placeholder="https://..."
+                    placeholder="یا URL تصویر..."
+                    disabled={uploading}
                   />
                 </div>
                 <div>
-                  <Label>URL ویدیو</Label>
+                  <Label>ویدیو</Label>
+                  <Input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => handleFileUpload(e, 'video')}
+                    disabled={uploading}
+                    className="mb-2"
+                  />
                   <Input
                     value={formData.video_url}
                     onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
-                    placeholder="https://..."
+                    placeholder="یا URL ویدیو..."
+                    disabled={uploading}
                   />
                 </div>
               </div>
@@ -195,8 +246,8 @@ export function NewsManager() {
                 />
                 <Label>منتشر شده</Label>
               </div>
-              <Button type="submit" className="w-full">
-                {editingNews ? "به‌روزرسانی" : "ایجاد"}
+              <Button type="submit" className="w-full" disabled={uploading}>
+                {uploading ? "در حال آپلود..." : editingNews ? "به‌روزرسانی" : "ایجاد"}
               </Button>
             </form>
           </DialogContent>

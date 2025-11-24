@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, FileText, Trash2, Download, ArrowLeft } from 'lucide-react';
+import { Upload, FileText, Trash2, Download, ArrowLeft, Eye } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 
@@ -90,15 +90,21 @@ const Materials = () => {
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-excel',
+        'application/vnd.ms-powerpoint',
         'image/jpeg',
         'image/png',
-        'image/webp'
+        'image/webp',
+        'image/gif',
+        'video/mp4',
+        'video/webm',
+        'text/plain'
       ];
       
       if (!allowedTypes.includes(selectedFile.type)) {
         toast({
           title: 'فرمت نامعتبر',
-          description: 'فقط فایل‌های PDF, DOCX, PPTX, XLSX و تصاویر مجاز هستند',
+          description: 'فایل‌های مجاز: PDF, Word, Excel, PowerPoint, تصاویر, ویدیو، متن',
           variant: 'destructive',
         });
         return;
@@ -177,25 +183,44 @@ const Materials = () => {
     }
   };
 
+  const handleView = async (material: Material) => {
+    try {
+      const { data } = supabase.storage
+        .from('educational-files')
+        .getPublicUrl(material.file_path);
+
+      window.open(data.publicUrl, '_blank');
+      toast({
+        title: 'باز شد',
+        description: 'فایل در تب جدید باز شد',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'خطا',
+        description: 'خطا در باز کردن فایل',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleDownload = async (material: Material) => {
     try {
       const { data } = supabase.storage
         .from('educational-files')
         .getPublicUrl(material.file_path);
 
-      const ext = material.file_path.split('.').pop()?.toLowerCase();
-      const isViewable = ['pdf', 'jpg', 'jpeg', 'png', 'webp'].includes(ext || '');
-      
-      if (isViewable) {
-        window.open(data.publicUrl, '_blank');
-      } else {
-        const link = document.createElement('a');
-        link.href = data.publicUrl;
-        link.download = material.title;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+      const link = document.createElement('a');
+      link.href = data.publicUrl;
+      link.download = material.title;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({
+        title: 'دانلود شروع شد',
+        description: 'فایل در حال دانلود است',
+      });
     } catch (error: any) {
       toast({
         title: 'خطا در دانلود',
@@ -359,6 +384,15 @@ const Materials = () => {
                         ))}
                       </div>
                       <div className="flex gap-2">
+                        <Button
+                          onClick={() => handleView(material)}
+                          variant="outline"
+                          className="flex-1"
+                          size="sm"
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          مشاهده
+                        </Button>
                         <Button
                           onClick={() => handleDownload(material)}
                           className="flex-1"
