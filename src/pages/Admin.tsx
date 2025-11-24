@@ -110,24 +110,24 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container mx-auto p-4 md:p-8 space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <Button
               variant="ghost"
               onClick={() => navigate('/chat')}
-              className="gap-2"
+              className="gap-2 self-start"
             >
               <ArrowLeft className="w-4 h-4" />
               بازگشت
             </Button>
             <div>
-              <h1 className="text-3xl font-bold gradient-text">پنل مدیریت</h1>
-              <p className="text-sm text-muted-foreground mt-1">
+              <h1 className="text-2xl md:text-3xl font-bold gradient-text">پنل مدیریت</h1>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1">
                 مدیریت کامل سیستم دانشگاه پیام‌نور
               </p>
             </div>
           </div>
-          <Badge variant="outline" className="gap-2">
+          <Badge variant="outline" className="gap-2 self-start sm:self-center">
             <Shield className="w-4 h-4" />
             مدیر سیستم
           </Badge>
@@ -186,18 +186,21 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="settings" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:grid-cols-3">
-            <TabsTrigger value="settings" className="gap-2">
-              <Settings className="h-4 w-4" />
-              تنظیمات سیستم
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="settings" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">تنظیمات سیستم</span>
+              <span className="sm:hidden">تنظیمات</span>
             </TabsTrigger>
-            <TabsTrigger value="news" className="gap-2">
-              <Newspaper className="h-4 w-4" />
-              مدیریت اخبار
+            <TabsTrigger value="news" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Newspaper className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">مدیریت اخبار</span>
+              <span className="sm:hidden">اخبار</span>
             </TabsTrigger>
-            <TabsTrigger value="ads" className="gap-2">
-              <ImageIcon className="h-4 w-4" />
-              مدیریت تبلیغات
+            <TabsTrigger value="ads" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <ImageIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">مدیریت تبلیغات</span>
+              <span className="sm:hidden">تبلیغات</span>
             </TabsTrigger>
           </TabsList>
 
