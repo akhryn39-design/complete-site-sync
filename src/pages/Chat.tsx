@@ -330,6 +330,10 @@ const Chat = () => {
               <BookOpen className="h-3 w-3 md:h-4 md:w-4" />
               <span className="hidden md:inline">مواد آموزشی</span>
             </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate('/news')} className="gap-1 md:gap-2 hidden sm:flex">
+              <Newspaper className="h-3 w-3 md:h-4 md:w-4" />
+              <span className="hidden md:inline">اخبار</span>
+            </Button>
             
             {messages.length > 0 && <Button variant="outline" size="sm" onClick={exportToPDF} className="gap-1 md:gap-2">
                 <FileDown className="h-3 w-3 md:h-4 md:w-4" />

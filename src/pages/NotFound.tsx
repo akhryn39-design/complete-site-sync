@@ -1,22 +1,62 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Home, ArrowRight, AlertCircle } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">Oops! Page not found</p>
-        <a href="/" className="text-primary underline hover:text-primary/90">
-          Return to Home
-        </a>
-      </div>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary)/0.1),transparent_50%)]" />
+      
+      <Card className="relative max-w-md w-full shadow-elegant border-2 border-border/60 animate-in fade-in zoom-in duration-500">
+        <CardContent className="p-8 text-center space-y-6">
+          <div className="relative">
+            <div className="absolute inset-0 animate-pulse-glow rounded-full blur-2xl bg-primary/20" />
+            <AlertCircle className="w-24 h-24 mx-auto text-primary animate-float relative" />
+          </div>
+          
+          <div className="space-y-2">
+            <h1 className="text-6xl font-bold gradient-text">404</h1>
+            <h2 className="text-2xl font-bold text-foreground">صفحه پیدا نشد</h2>
+            <p className="text-muted-foreground">
+              متأسفانه صفحه‌ای که به دنبال آن هستید وجود ندارد یا حذف شده است
+            </p>
+          </div>
+
+          <div className="pt-4 space-y-3">
+            <Button 
+              onClick={() => navigate('/')} 
+              className="w-full gap-2 shadow-md hover:shadow-lg transition-all"
+            >
+              <Home className="w-4 h-4" />
+              بازگشت به صفحه اصلی
+            </Button>
+            
+            <Button 
+              onClick={() => navigate(-1)} 
+              variant="outline"
+              className="w-full gap-2"
+            >
+              <ArrowRight className="w-4 h-4" />
+              بازگشت به صفحه قبل
+            </Button>
+          </div>
+
+          <div className="pt-4 border-t border-border/50">
+            <p className="text-xs text-muted-foreground">
+              مسیر درخواستی: <code className="text-primary">{location.pathname}</code>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
