@@ -63,31 +63,44 @@ export function NewsManager() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validate file size
+    const maxSize = type === 'image' ? 10 * 1024 * 1024 : 100 * 1024 * 1024; // 10MB for images, 100MB for videos
+    if (file.size > maxSize) {
+      toast.error(`حجم فایل نباید بیشتر از ${type === 'image' ? '10' : '100'} مگابایت باشد`);
+      return;
+    }
+
     try {
       setUploading(true);
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${type}s/${fileName}`;
+      const fileName = `news/${type}s/${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('chat-images')
-        .upload(filePath, file);
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('chat-images')
-        .getPublicUrl(filePath);
-
-      if (type === 'image') {
-        setFormData({ ...formData, image_url: publicUrl });
-      } else {
-        setFormData({ ...formData, video_url: publicUrl });
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
       }
 
-      toast.success(`${type === 'image' ? 'تصویر' : 'ویدیو'} آپلود شد`);
+      const { data } = supabase.storage
+        .from('chat-images')
+        .getPublicUrl(fileName);
+
+      if (type === 'image') {
+        setFormData({ ...formData, image_url: data.publicUrl });
+      } else {
+        setFormData({ ...formData, video_url: data.publicUrl });
+      }
+
+      toast.success(`${type === 'image' ? 'تصویر' : 'ویدیو'} با موفقیت آپلود شد`);
     } catch (error: any) {
-      toast.error(`خطا در آپلود ${type === 'image' ? 'تصویر' : 'ویدیو'}`);
+      console.error('File upload error:', error);
+      toast.error(`خطا در آپلود: ${error.message || 'لطفاً دوباره تلاش کنید'}`);
     } finally {
       setUploading(false);
     }
@@ -163,9 +176,9 @@ export function NewsManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">مدیریت اخبار</h2>
+          <h2 className="text-2xl font-bold gradient-text">مدیریت اخبار</h2>
           <p className="text-sm text-muted-foreground">
-            ایجاد و مدیریت اخبار و اطلاعیه‌ها
+            ایجاد و مدیریت اخبار و اطلاعیه‌ها | {news.length} خبر موجود
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -255,10 +268,17 @@ export function NewsManager() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {news.map((item) => (
-          <Card key={item.id}>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center justify-between">
+        {news.length === 0 ? (
+          <Card className="md:col-span-2">
+            <CardContent className="p-8 text-center text-muted-foreground">
+              هیچ خبری وجود ندارد. اولین خبر خود را ایجاد کنید!
+            </CardContent>
+          </Card>
+        ) : (
+          news.map((item) => (
+            <Card key={item.id} className="shadow-elegant hover:shadow-glow transition-all duration-300">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center justify-between">
                 <span className="truncate">{item.title}</span>
                 <span
                   className={`text-xs px-2 py-1 rounded ${
@@ -296,7 +316,8 @@ export function NewsManager() {
               </div>
             </CardContent>
           </Card>
-        ))}
+        ))
+        )}
       </div>
     </div>
   );

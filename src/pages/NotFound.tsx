@@ -13,20 +13,21 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary)/0.1),transparent_50%)]" />
+    <div className="min-h-screen flex items-center justify-center p-4 relative">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary)/0.15),transparent_60%)]" />
       
-      <Card className="relative max-w-md w-full shadow-elegant border-2 border-border/60 animate-in fade-in zoom-in duration-500">
+      <Card className="relative max-w-md w-full shadow-2xl border-2 border-primary/20 animate-in fade-in zoom-in duration-500 backdrop-blur-sm bg-card/95">
         <CardContent className="p-8 text-center space-y-6">
           <div className="relative">
-            <div className="absolute inset-0 animate-pulse-glow rounded-full blur-2xl bg-primary/20" />
-            <AlertCircle className="w-24 h-24 mx-auto text-primary animate-float relative" />
+            <div className="absolute inset-0 animate-pulse-glow rounded-full blur-3xl bg-primary/30" />
+            <AlertCircle className="w-24 h-24 mx-auto text-primary animate-float relative drop-shadow-2xl" />
           </div>
           
-          <div className="space-y-2">
-            <h1 className="text-6xl font-bold gradient-text">404</h1>
+          <div className="space-y-3">
+            <h1 className="text-7xl font-bold gradient-text drop-shadow-lg">404</h1>
             <h2 className="text-2xl font-bold text-foreground">صفحه پیدا نشد</h2>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground leading-relaxed">
               متأسفانه صفحه‌ای که به دنبال آن هستید وجود ندارد یا حذف شده است
             </p>
           </div>
@@ -34,7 +35,7 @@ const NotFound = () => {
           <div className="pt-4 space-y-3">
             <Button 
               onClick={() => navigate('/')} 
-              className="w-full gap-2 shadow-md hover:shadow-lg transition-all"
+              className="w-full gap-2 shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
               <Home className="w-4 h-4" />
               بازگشت به صفحه اصلی
@@ -43,7 +44,7 @@ const NotFound = () => {
             <Button 
               onClick={() => navigate(-1)} 
               variant="outline"
-              className="w-full gap-2"
+              className="w-full gap-2 hover:bg-muted transition-all"
             >
               <ArrowRight className="w-4 h-4" />
               بازگشت به صفحه قبل
