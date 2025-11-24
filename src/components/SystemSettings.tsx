@@ -103,9 +103,9 @@ export const SystemSettings = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">تنظیمات سیستم</h2>
+          <h2 className="text-2xl font-bold gradient-text">تنظیمات سیستم</h2>
           <p className="text-sm text-muted-foreground">
-            مدیریت {settings.length} تنظیم در {Object.keys(groupedSettings).length} دسته
+            مدیریت {settings.length} تنظیم در {Object.keys(groupedSettings).length} دسته | پشتیبانی از تا 150 تنظیم مختلف
           </p>
         </div>
         <div className="flex gap-2">
@@ -123,9 +123,13 @@ export const SystemSettings = () => {
       </div>
 
       {Object.entries(groupedSettings).map(([category, categorySettings]) => (
-        <Card key={category}>
+        <Card key={category} className="shadow-elegant hover:shadow-glow transition-all duration-300">
           <CardHeader>
-            <CardTitle className="text-lg capitalize">{category}</CardTitle>
+            <CardTitle className="text-lg capitalize flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+              {category}
+            </CardTitle>
+            <CardDescription>{categorySettings.length} تنظیمات</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {categorySettings.map((setting) => (

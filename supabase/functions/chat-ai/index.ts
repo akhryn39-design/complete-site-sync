@@ -110,7 +110,7 @@ ${materialsContext}
       return msg;
     });
 
-    // Use gemini-3-pro-preview for enhanced vision and reasoning
+    // Use gemini-3-pro-preview for enhanced multimodal capabilities
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -124,8 +124,9 @@ ${materialsContext}
           ...transformedMessages
         ],
         stream: true,
-        temperature: 0.8,
-        max_tokens: 8000,
+        temperature: 0.7,
+        max_tokens: 16000,
+        top_p: 0.95,
       }),
     });
 
