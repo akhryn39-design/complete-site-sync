@@ -9,7 +9,7 @@ import Chat from "./pages/Chat";
 import Materials from "./pages/Materials";
 import News from "./pages/News";
 import Admin from "./pages/Admin";
-import NotFound from "./pages/NotFound";
+import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
@@ -22,11 +22,12 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Chat />} />
+            <Route path="/chat" element={<Chat />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/materials" element={<Materials />} />
             <Route path="/news" element={<News />} />
             <Route path="/admin" element={<Admin />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
