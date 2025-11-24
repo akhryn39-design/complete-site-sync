@@ -101,21 +101,21 @@ export const SystemSettings = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-bold gradient-text">تنظیمات سیستم</h2>
           <p className="text-sm text-muted-foreground">
-            مدیریت {settings.length} تنظیم در {Object.keys(groupedSettings).length} دسته | پشتیبانی از تا 150 تنظیم مختلف
+            مدیریت {settings.length} تنظیم در {Object.keys(groupedSettings).length} دسته | پشتیبانی تا 150 تنظیم
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
           <Input
             placeholder="جستجو در تنظیمات..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-64"
+            className="w-full sm:w-64"
           />
-          <Button onClick={handleSaveAll} disabled={saving}>
+          <Button onClick={handleSaveAll} disabled={saving} className="w-full sm:w-auto">
             <Save className="mr-2 h-4 w-4" />
             {saving ? 'در حال ذخیره...' : 'ذخیره همه'}
           </Button>
@@ -133,9 +133,9 @@ export const SystemSettings = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {categorySettings.map((setting) => (
-              <div key={setting.id} className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label>{setting.key}</Label>
+              <div key={setting.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="space-y-1 flex-1">
+                  <Label className="text-base">{setting.key}</Label>
                   {setting.description && (
                     <p className="text-sm text-muted-foreground">
                       {setting.description}
@@ -146,19 +146,20 @@ export const SystemSettings = () => {
                   <Switch
                     checked={setting.value}
                     onCheckedChange={(checked) => updateSetting(setting.id, checked)}
+                    className="self-start sm:self-center"
                   />
                 ) : typeof setting.value === 'number' ? (
                   <Input
                     type="number"
                     value={setting.value?.toString() || ''}
                     onChange={(e) => updateSetting(setting.id, parseFloat(e.target.value) || 0)}
-                    className="w-64"
+                    className="w-full sm:w-64"
                   />
                 ) : (
                   <Input
                     value={setting.value?.toString() || ''}
                     onChange={(e) => updateSetting(setting.id, e.target.value)}
-                    className="w-64"
+                    className="w-full sm:w-64"
                   />
                 )}
               </div>
