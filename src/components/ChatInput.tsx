@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
-import { Send, Image as ImageIcon, Loader2, X, Mic, Square, Paperclip } from 'lucide-react';
+import { Send, Image as ImageIcon, Loader2, X, Mic, Square, Paperclip, Sparkles } from 'lucide-react';
 import { useToast } from './ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -276,14 +276,14 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
   };
 
   return (
-    <div className="border-t bg-card p-2 sm:p-3 md:p-4">
+    <div className="border-t border-border/50 bg-card/80 backdrop-blur-xl p-2 sm:p-3 md:p-4">
       {imagePreview && (
-        <div className="mb-2 sm:mb-3 relative inline-block">
-          <img src={imagePreview} alt="Preview" className="max-h-24 sm:max-h-32 rounded-lg" />
+        <div className="mb-2 sm:mb-3 relative inline-block group">
+          <img src={imagePreview} alt="Preview" className="max-h-24 sm:max-h-32 rounded-xl border-2 border-primary/20 shadow-md" />
           <Button
             size="sm"
             variant="destructive"
-            className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-5 w-5 sm:h-6 sm:w-6 rounded-full p-0"
+            className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-6 w-6 sm:h-7 sm:w-7 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-all shadow-lg"
             onClick={clearImage}
           >
             <X className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -292,13 +292,15 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
       )}
 
       {file && (
-        <div className="mb-2 sm:mb-3 flex items-center gap-2 p-2 bg-muted rounded-lg">
-          <Paperclip className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-          <span className="text-xs sm:text-sm flex-1 truncate">{file.name}</span>
+        <div className="mb-2 sm:mb-3 flex items-center gap-2 p-3 bg-accent/10 rounded-xl border border-accent/20 group hover:bg-accent/15 transition-all">
+          <div className="p-2 bg-accent/20 rounded-lg">
+            <Paperclip className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 text-accent" />
+          </div>
+          <span className="text-xs sm:text-sm flex-1 truncate font-medium">{file.name}</span>
           <Button
             size="sm"
             variant="ghost"
-            className="h-5 w-5 sm:h-6 sm:w-6 p-0 flex-shrink-0"
+            className="h-6 w-6 sm:h-7 sm:w-7 p-0 flex-shrink-0 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
             onClick={clearFile}
           >
             <X className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -327,7 +329,7 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
           variant="outline"
           onClick={() => imageInputRef.current?.click()}
           disabled={loading}
-          className="h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0"
+          className="h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0 hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all"
         >
           <ImageIcon className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
@@ -338,7 +340,7 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
           variant="outline"
           onClick={() => fileInputRef.current?.click()}
           disabled={loading}
-          className="h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0"
+          className="h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0 hover:bg-secondary/10 hover:border-secondary/50 hover:text-secondary transition-all"
         >
           <Paperclip className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
@@ -349,7 +351,7 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
           variant="outline"
           onClick={isRecording ? stopRecording : startRecording}
           disabled={loading}
-          className={`h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0 ${isRecording ? 'bg-destructive text-destructive-foreground' : ''}`}
+          className={`h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0 transition-all ${isRecording ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90 animate-pulse' : 'hover:bg-accent/10 hover:border-accent/50 hover:text-accent'}`}
         >
           {isRecording ? <Square className="h-4 w-4 sm:h-5 sm:w-5" /> : <Mic className="h-4 w-4 sm:h-5 sm:w-5" />}
         </Button>
@@ -358,8 +360,8 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="پیام..."
-          className="min-h-[36px] sm:min-h-[44px] max-h-32 resize-none text-sm"
+          placeholder="پیام خود را بنویسید..."
+          className="min-h-[36px] sm:min-h-[44px] max-h-32 resize-none text-sm bg-background/50 border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all"
           disabled={loading}
         />
 
@@ -367,9 +369,9 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
           onClick={handleSubmit}
           disabled={loading || (!message.trim() && !imageFile && !file)}
           size="icon"
-          className="h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0"
+          className="h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover hover:to-secondary-hover shadow-lg hover:shadow-glow transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" /> : <Send className="h-4 w-4 sm:h-5 sm:w-5" />}
+          {loading ? <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" /> : <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />}
         </Button>
       </div>
     </div>

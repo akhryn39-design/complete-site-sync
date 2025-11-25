@@ -7,7 +7,7 @@ import ChatInput from '@/components/ChatInput';
 import AdDisplay from '@/components/AdDisplay';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { FileDown, Loader2, Menu, MessageSquare, Search, ImageIcon, BookOpen, Newspaper, Shield, User } from 'lucide-react';
+import { FileDown, Loader2, Menu, MessageSquare, Search, ImageIcon, BookOpen, Newspaper, Shield, User, Paperclip, Mic } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 interface Message {
@@ -309,41 +309,46 @@ const Chat = () => {
       description: 'گفتگو به صورت PDF ذخیره شد'
     });
   };
-  return <div className="flex h-screen bg-gradient-to-br from-background via-background to-muted/20 overflow-hidden">
+  return <div className="flex h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden relative">
+      <div className="absolute inset-0 bg-[var(--gradient-mesh)] pointer-events-none opacity-40" />
+      
       <ChatSidebar currentConversationId={currentConversationId} onConversationSelect={setCurrentConversationId} onNewConversation={createNewConversation} isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 border-b bg-card/50 backdrop-blur">
+      <div className="flex-1 flex flex-col min-w-0 relative z-10">
+        <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 border-b border-border/50 bg-card/80 backdrop-blur-xl">
           <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden flex-shrink-0 h-8 w-8 sm:h-9 sm:w-9">
+            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden flex-shrink-0 h-8 w-8 sm:h-9 sm:w-9 hover:bg-primary/10 transition-colors">
               <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-            <h2 className="text-base sm:text-lg md:text-xl font-bold gradient-text truncate">AS</h2>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-secondary animate-pulse" />
+              <h2 className="text-base sm:text-lg md:text-xl font-bold gradient-text truncate">دستیار هوشمند</h2>
+            </div>
           </div>
 
           <div className="flex gap-1 flex-shrink-0">
             {isAdmin && (
               <>
-                <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3">
+                <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3 hover:bg-primary/10 hover:border-primary/50 transition-all">
                   <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline text-xs sm:text-sm">پنل</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => navigate('/users')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3">
+                <Button variant="outline" size="sm" onClick={() => navigate('/users')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3 hover:bg-secondary/10 hover:border-secondary/50 transition-all">
                   <User className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline text-xs sm:text-sm">کاربران</span>
                 </Button>
               </>
             )}
-            <Button variant="outline" size="sm" onClick={() => navigate('/materials')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3">
+            <Button variant="outline" size="sm" onClick={() => navigate('/materials')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3 hover:bg-accent/10 hover:border-accent/50 transition-all">
               <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline text-xs sm:text-sm">مواد</span>
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate('/news')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3">
+            <Button variant="outline" size="sm" onClick={() => navigate('/news')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3 hover:bg-accent/10 hover:border-accent/50 transition-all">
               <Newspaper className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline text-xs sm:text-sm">اخبار</span>
             </Button>
             
-            {messages.length > 0 && <Button variant="outline" size="sm" onClick={exportToPDF} className="gap-1 h-8 px-2 sm:h-9 sm:px-3">
+            {messages.length > 0 && <Button variant="outline" size="sm" onClick={exportToPDF} className="gap-1 h-8 px-2 sm:h-9 sm:px-3 hover:bg-primary/10 hover:border-primary/50 transition-all">
                 <FileDown className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden md:inline text-xs sm:text-sm">PDF</span>
               </Button>}
@@ -358,10 +363,34 @@ const Chat = () => {
             </div>}
 
           {messages.length === 0 && !loading && <div className="flex flex-col items-center justify-center h-full text-center p-3 sm:p-4 md:p-8">
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">به چت هوشمند خوش آمدید!</h3>
-              <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
-                سوال خود را بپرسید یا فایل آپلود کنید
+              <div className="mb-6 relative">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-elegant animate-float">
+                  <MessageSquare className="w-10 h-10 text-primary-foreground" />
+                </div>
+                <div className="absolute -inset-1 bg-gradient-to-br from-primary/50 to-secondary/50 rounded-2xl blur-xl opacity-50 -z-10" />
+              </div>
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 gradient-text">به دستیار هوشمند خوش آمدید!</h3>
+              <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-md">
+                می‌توانید سوال بپرسید، تصویر بفرستید، فایل آپلود کنید یا با صدا صحبت کنید
               </p>
+              <div className="mt-6 grid grid-cols-2 gap-3 max-w-md w-full">
+                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-all">
+                  <ImageIcon className="w-5 h-5 text-primary mb-1" />
+                  <p className="text-xs font-medium">تصویر</p>
+                </div>
+                <div className="p-3 rounded-lg bg-secondary/5 border border-secondary/20 hover:bg-secondary/10 transition-all">
+                  <Paperclip className="w-5 h-5 text-secondary mb-1" />
+                  <p className="text-xs font-medium">فایل</p>
+                </div>
+                <div className="p-3 rounded-lg bg-accent/5 border border-accent/20 hover:bg-accent/10 transition-all">
+                  <Mic className="w-5 h-5 text-accent mb-1" />
+                  <p className="text-xs font-medium">صوت</p>
+                </div>
+                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-all">
+                  <Search className="w-5 h-5 text-primary mb-1" />
+                  <p className="text-xs font-medium">جستجو</p>
+                </div>
+              </div>
             </div>}
 
           <div className="space-y-2 sm:space-y-3 md:space-y-4 max-w-4xl mx-auto">
