@@ -7,7 +7,7 @@ import ChatInput from '@/components/ChatInput';
 import AdDisplay from '@/components/AdDisplay';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { FileDown, Loader2, Menu, MessageSquare, Search, ImageIcon, BookOpen, Newspaper, Shield } from 'lucide-react';
+import { FileDown, Loader2, Menu, MessageSquare, Search, ImageIcon, BookOpen, Newspaper, Shield, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 interface Message {
@@ -318,21 +318,29 @@ const Chat = () => {
             <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden flex-shrink-0 h-8 w-8 sm:h-9 sm:w-9">
               <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-            <h2 className="text-xs sm:text-sm md:text-lg font-bold gradient-text truncate">AS</h2>
+            <h2 className="text-base sm:text-lg md:text-xl font-bold gradient-text truncate">AS</h2>
           </div>
 
           <div className="flex gap-1 flex-shrink-0">
-            {isAdmin && <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3">
-                <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline text-xs sm:text-sm">مدیریت</span>
-              </Button>}
-            <Button variant="outline" size="sm" onClick={() => navigate('/materials')} className="gap-1 hidden xs:flex h-8 px-2 sm:h-9 sm:px-3">
+            {isAdmin && (
+              <>
+                <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3">
+                  <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline text-xs sm:text-sm">پنل</span>
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => navigate('/users')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3">
+                  <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline text-xs sm:text-sm">کاربران</span>
+                </Button>
+              </>
+            )}
+            <Button variant="outline" size="sm" onClick={() => navigate('/materials')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3">
               <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden md:inline text-xs sm:text-sm">مواد</span>
+              <span className="hidden sm:inline text-xs sm:text-sm">مواد</span>
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate('/news')} className="gap-1 hidden xs:flex h-8 px-2 sm:h-9 sm:px-3">
+            <Button variant="outline" size="sm" onClick={() => navigate('/news')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3">
               <Newspaper className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden md:inline text-xs sm:text-sm">اخبار</span>
+              <span className="hidden sm:inline text-xs sm:text-sm">اخبار</span>
             </Button>
             
             {messages.length > 0 && <Button variant="outline" size="sm" onClick={exportToPDF} className="gap-1 h-8 px-2 sm:h-9 sm:px-3">

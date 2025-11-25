@@ -9,6 +9,7 @@ import Chat from "./pages/Chat";
 import Materials from "./pages/Materials";
 import News from "./pages/News";
 import Admin from "./pages/Admin";
+import UserManagement from "./pages/UserManagement";
 import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/materials" element={<Materials />} />
             <Route path="/news" element={<News />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/users" element={<UserManagement />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
