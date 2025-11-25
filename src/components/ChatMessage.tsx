@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
-import { Copy, Pencil, Trash2, Check, User, Bot, FileDown } from 'lucide-react';
+import { Copy, Pencil, Trash2, Check, User, Sparkles, FileDown } from 'lucide-react';
 import { useToast } from './ui/use-toast';
 import { Textarea } from './ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
@@ -151,7 +151,7 @@ const ChatMessage = ({ id, role, content, imageUrl, onUpdate }: ChatMessageProps
       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
         isUser ? 'bg-primary shadow-md' : 'bg-gradient-to-br from-primary via-accent to-secondary shadow-glow animate-pulse-slow'
       }`}>
-        {isUser ? <User className="w-5 h-5 text-primary-foreground" /> : <Bot className="w-5 h-5 text-primary-foreground animate-pulse" />}
+        {isUser ? <User className="w-5 h-5 text-primary-foreground" /> : <Sparkles className="w-5 h-5 text-primary-foreground animate-pulse" />}
       </div>
 
       <div className="flex-1 min-w-0">
