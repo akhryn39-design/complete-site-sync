@@ -103,9 +103,14 @@ export const SystemSettings = () => {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-2xl font-bold gradient-text">تنظیمات سیستم</h2>
-          <p className="text-sm text-muted-foreground">
-            مدیریت {settings.length} تنظیم در {Object.keys(groupedSettings).length} دسته | پشتیبانی تا 150 تنظیم
+          <h2 className="text-2xl font-bold gradient-text flex items-center gap-2">
+            تنظیمات سیستم
+            <span className="text-sm font-normal text-muted-foreground bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+              {settings.length} تنظیم
+            </span>
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            مدیریت تنظیمات در {Object.keys(groupedSettings).length} دسته | پشتیبانی تا 500 تنظیم
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
@@ -113,9 +118,9 @@ export const SystemSettings = () => {
             placeholder="جستجو در تنظیمات..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full sm:w-64"
+            className="w-full sm:w-64 border-border/50 focus:border-primary/50 transition-all"
           />
-          <Button onClick={handleSaveAll} disabled={saving} className="w-full sm:w-auto">
+          <Button onClick={handleSaveAll} disabled={saving} className="w-full sm:w-auto bg-gradient-to-r from-primary to-secondary hover:from-primary-hover hover:to-secondary-hover shadow-md hover:shadow-lg transition-all">
             <Save className="mr-2 h-4 w-4" />
             {saving ? 'در حال ذخیره...' : 'ذخیره همه'}
           </Button>
@@ -123,13 +128,17 @@ export const SystemSettings = () => {
       </div>
 
       {Object.entries(groupedSettings).map(([category, categorySettings]) => (
-        <Card key={category} className="shadow-elegant hover:shadow-glow transition-all duration-300">
-          <CardHeader>
-            <CardTitle className="text-lg capitalize flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-              {category}
+        <Card key={category} className="shadow-md hover:shadow-elegant transition-all duration-300 border-border/50 bg-card/80 backdrop-blur-sm">
+          <CardHeader className="border-b border-border/50">
+            <CardTitle className="text-lg capitalize flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+              </div>
+              <div>
+                <div className="font-bold">{category}</div>
+                <div className="text-sm font-normal text-muted-foreground">{categorySettings.length} تنظیم</div>
+              </div>
             </CardTitle>
-            <CardDescription>{categorySettings.length} تنظیمات</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {categorySettings.map((setting) => (
