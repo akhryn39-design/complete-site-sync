@@ -276,37 +276,37 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
   };
 
   return (
-    <div className="border-t bg-card p-4">
+    <div className="border-t bg-card p-2 sm:p-3 md:p-4">
       {imagePreview && (
-        <div className="mb-3 relative inline-block">
-          <img src={imagePreview} alt="Preview" className="max-h-32 rounded-lg" />
+        <div className="mb-2 sm:mb-3 relative inline-block">
+          <img src={imagePreview} alt="Preview" className="max-h-24 sm:max-h-32 rounded-lg" />
           <Button
             size="sm"
             variant="destructive"
-            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+            className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-5 w-5 sm:h-6 sm:w-6 rounded-full p-0"
             onClick={clearImage}
           >
-            <X className="h-4 w-4" />
+            <X className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         </div>
       )}
 
       {file && (
-        <div className="mb-3 flex items-center gap-2 p-2 bg-muted rounded-lg">
-          <Paperclip className="h-4 w-4" />
-          <span className="text-sm flex-1">{file.name}</span>
+        <div className="mb-2 sm:mb-3 flex items-center gap-2 p-2 bg-muted rounded-lg">
+          <Paperclip className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+          <span className="text-xs sm:text-sm flex-1 truncate">{file.name}</span>
           <Button
             size="sm"
             variant="ghost"
-            className="h-6 w-6 p-0"
+            className="h-5 w-5 sm:h-6 sm:w-6 p-0 flex-shrink-0"
             onClick={clearFile}
           >
-            <X className="h-4 w-4" />
+            <X className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         </div>
       )}
 
-      <div className="flex gap-2 items-end">
+      <div className="flex gap-1 sm:gap-2 items-end">
         <input
           ref={imageInputRef}
           type="file"
@@ -327,8 +327,9 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
           variant="outline"
           onClick={() => imageInputRef.current?.click()}
           disabled={loading}
+          className="h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0"
         >
-          <ImageIcon className="h-5 w-5" />
+          <ImageIcon className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
 
         <Button
@@ -337,8 +338,9 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
           variant="outline"
           onClick={() => fileInputRef.current?.click()}
           disabled={loading}
+          className="h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0"
         >
-          <Paperclip className="h-5 w-5" />
+          <Paperclip className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
 
         <Button
@@ -347,17 +349,17 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
           variant="outline"
           onClick={isRecording ? stopRecording : startRecording}
           disabled={loading}
-          className={isRecording ? 'bg-destructive text-destructive-foreground' : ''}
+          className={`h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0 ${isRecording ? 'bg-destructive text-destructive-foreground' : ''}`}
         >
-          {isRecording ? <Square className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+          {isRecording ? <Square className="h-4 w-4 sm:h-5 sm:w-5" /> : <Mic className="h-4 w-4 sm:h-5 sm:w-5" />}
         </Button>
 
         <Textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="پیام خود را بنویسید..."
-          className="min-h-[44px] max-h-32 resize-none"
+          placeholder="پیام..."
+          className="min-h-[36px] sm:min-h-[44px] max-h-32 resize-none text-sm"
           disabled={loading}
         />
 
@@ -365,9 +367,9 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
           onClick={handleSubmit}
           disabled={loading || (!message.trim() && !imageFile && !file)}
           size="icon"
-          className="h-11 w-11"
+          className="h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0"
         >
-          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+          {loading ? <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" /> : <Send className="h-4 w-4 sm:h-5 sm:w-5" />}
         </Button>
       </div>
     </div>
