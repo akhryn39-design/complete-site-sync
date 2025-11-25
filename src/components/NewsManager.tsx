@@ -110,16 +110,24 @@ export function NewsManager() {
     e.preventDefault();
 
     try {
+      // Convert datetime-local format to ISO format for PostgreSQL
+      const submitData = {
+        ...formData,
+        publish_date: formData.publish_date 
+          ? new Date(formData.publish_date).toISOString() 
+          : null
+      };
+
       if (editingNews) {
         const { error } = await supabase
           .from("news")
-          .update(formData)
+          .update(submitData)
           .eq("id", editingNews.id);
 
         if (error) throw error;
         toast.success("خبر به‌روز شد");
       } else {
-        const { error } = await supabase.from("news").insert([formData]);
+        const { error } = await supabase.from("news").insert([submitData]);
 
         if (error) throw error;
         toast.success("خبر جدید ایجاد شد");
@@ -149,13 +157,18 @@ export function NewsManager() {
 
   const handleEdit = (newsItem: News) => {
     setEditingNews(newsItem);
+    // Convert ISO date to datetime-local format (YYYY-MM-DDTHH:MM)
+    const formattedDate = newsItem.publish_date 
+      ? new Date(newsItem.publish_date).toISOString().slice(0, 16)
+      : "";
+    
     setFormData({
       title: newsItem.title,
       content: newsItem.content,
       image_url: newsItem.image_url || "",
       video_url: newsItem.video_url || "",
       is_published: newsItem.is_published,
-      publish_date: newsItem.publish_date || "",
+      publish_date: formattedDate,
     });
     setIsDialogOpen(true);
   };

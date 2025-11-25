@@ -309,54 +309,54 @@ const Chat = () => {
       description: 'گفتگو به صورت PDF ذخیره شد'
     });
   };
-  return <div className="flex h-screen bg-gradient-to-br from-background via-background to-muted/20">
+  return <div className="flex h-screen bg-gradient-to-br from-background via-background to-muted/20 overflow-hidden">
       <ChatSidebar currentConversationId={currentConversationId} onConversationSelect={setCurrentConversationId} onNewConversation={createNewConversation} isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="flex items-center justify-between p-3 md:p-4 border-b bg-card/50 backdrop-blur">
-          <div className="flex items-center gap-2 min-w-0">
-            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden flex-shrink-0">
-              <Menu className="h-5 w-5" />
+        <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 border-b bg-card/50 backdrop-blur">
+          <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden flex-shrink-0 h-8 w-8 sm:h-9 sm:w-9">
+              <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-            <h2 className="text-sm md:text-lg font-bold gradient-text truncate">AS</h2>
+            <h2 className="text-xs sm:text-sm md:text-lg font-bold gradient-text truncate">AS</h2>
           </div>
 
-          <div className="flex gap-1 md:gap-2 flex-shrink-0">
-            {isAdmin && <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="gap-1 md:gap-2">
-                <Shield className="h-3 w-3 md:h-4 md:w-4" />
-                <span className="hidden md:inline">مدیریت</span>
+          <div className="flex gap-1 flex-shrink-0">
+            {isAdmin && <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3">
+                <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline text-xs sm:text-sm">مدیریت</span>
               </Button>}
-            <Button variant="outline" size="sm" onClick={() => navigate('/materials')} className="gap-1 md:gap-2 hidden sm:flex">
-              <BookOpen className="h-3 w-3 md:h-4 md:w-4" />
-              <span className="hidden md:inline">مواد آموزشی</span>
+            <Button variant="outline" size="sm" onClick={() => navigate('/materials')} className="gap-1 hidden xs:flex h-8 px-2 sm:h-9 sm:px-3">
+              <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden md:inline text-xs sm:text-sm">مواد</span>
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate('/news')} className="gap-1 md:gap-2 hidden sm:flex">
-              <Newspaper className="h-3 w-3 md:h-4 md:w-4" />
-              <span className="hidden md:inline">اخبار</span>
+            <Button variant="outline" size="sm" onClick={() => navigate('/news')} className="gap-1 hidden xs:flex h-8 px-2 sm:h-9 sm:px-3">
+              <Newspaper className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden md:inline text-xs sm:text-sm">اخبار</span>
             </Button>
             
-            {messages.length > 0 && <Button variant="outline" size="sm" onClick={exportToPDF} className="gap-1 md:gap-2">
-                <FileDown className="h-3 w-3 md:h-4 md:w-4" />
-                <span className="hidden md:inline">PDF</span>
+            {messages.length > 0 && <Button variant="outline" size="sm" onClick={exportToPDF} className="gap-1 h-8 px-2 sm:h-9 sm:px-3">
+                <FileDown className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden md:inline text-xs sm:text-sm">PDF</span>
               </Button>}
           </div>
         </div>
 
         <AdDisplay position="chat_top" />
 
-        <ScrollArea className="flex-1 p-2 md:p-4">
+        <ScrollArea className="flex-1 p-2 sm:p-3 md:p-4">
           {loading && messages.length === 0 && <div className="flex justify-center items-center h-full">
-              <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
+              <Loader2 className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 animate-spin text-primary" />
             </div>}
 
-          {messages.length === 0 && !loading && <div className="flex flex-col items-center justify-center h-full text-center p-4 md:p-8">
-              <h3 className="text-xl md:text-2xl font-bold mb-2">به چت هوشمند خوش آمدید!</h3>
-              <p className="text-sm md:text-base text-muted-foreground">
+          {messages.length === 0 && !loading && <div className="flex flex-col items-center justify-center h-full text-center p-3 sm:p-4 md:p-8">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">به چت هوشمند خوش آمدید!</h3>
+              <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
                 سوال خود را بپرسید یا فایل آپلود کنید
               </p>
             </div>}
 
-          <div className="space-y-3 md:space-y-4 max-w-4xl mx-auto">
+          <div className="space-y-2 sm:space-y-3 md:space-y-4 max-w-4xl mx-auto">
             {messages.map(message => <ChatMessage key={message.id} id={message.id} role={message.role} content={message.content} imageUrl={message.image_url} onUpdate={loadMessages} />)}
             <div ref={messagesEndRef} />
           </div>

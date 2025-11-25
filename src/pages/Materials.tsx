@@ -256,38 +256,39 @@ const Materials = () => {
     : materials.filter(m => m.category === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-2 sm:p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
             onClick={() => navigate('/chat')}
-            className="gap-2"
+            className="gap-1 sm:gap-2 text-xs sm:text-sm h-8 sm:h-10 px-2 sm:px-4"
           >
-            <ArrowLeft className="w-4 h-4" />
-            بازگشت به چت
+            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+            بازگشت
           </Button>
         </div>
 
         <Card className="shadow-elegant border-2">
-          <CardHeader>
-            <CardTitle className="text-2xl">مواد آموزشی</CardTitle>
-            <CardDescription>
+          <CardHeader className="p-3 sm:p-4 md:p-6">
+            <CardTitle className="text-lg sm:text-xl md:text-2xl">مواد آموزشی</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
               دانلود منابع و فایل‌های آموزشی
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4 sm:space-y-6 p-2 sm:p-4 md:p-6">
             {isAdmin && (
               <Card>
-                <CardHeader>
-                  <CardTitle>آپلود فایل جدید</CardTitle>
+                <CardHeader className="p-3 sm:p-4 md:p-6">
+                  <CardTitle className="text-base sm:text-lg md:text-xl">آپلود فایل جدید</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 md:p-6">
                   <div>
                     <Input
                       placeholder="عنوان"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
+                      className="text-sm"
                     />
                   </div>
                   <div>
@@ -295,11 +296,12 @@ const Materials = () => {
                       placeholder="توضیحات"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
+                      className="text-sm"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger>
+                      <SelectTrigger className="text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -313,6 +315,7 @@ const Materials = () => {
                       placeholder="برچسب‌ها (با کاما جدا کنید)"
                       value={tags}
                       onChange={(e) => setTags(e.target.value)}
+                      className="text-sm"
                     />
                   </div>
                   <div>
@@ -320,26 +323,27 @@ const Materials = () => {
                       type="file"
                       accept=".pdf,.docx,.pptx,.xlsx,image/jpeg,image/png,image/webp"
                       onChange={handleFileChange}
+                      className="text-sm"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
                       فرمت‌های مجاز: PDF, DOCX, PPTX, XLSX, JPG, PNG, WEBP (حداکثر ۲۰۰ مگابایت)
                     </p>
                   </div>
                   <Button
                     onClick={handleUpload}
                     disabled={uploading}
-                    className="w-full"
+                    className="w-full text-sm"
                   >
                     {uploading ? 'در حال آپلود...' : 'آپلود فایل'}
-                    <Upload className="mr-2 h-4 w-4" />
+                    <Upload className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                 </CardContent>
               </Card>
             )}
 
-            <div className="flex gap-4">
+            <div className="flex gap-2 sm:gap-4">
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-32 sm:w-48 text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -352,7 +356,7 @@ const Materials = () => {
               </Select>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {loading ? (
                 <div className="col-span-full text-center py-8">
                   در حال بارگذاری...
