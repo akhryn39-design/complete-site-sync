@@ -369,9 +369,13 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
           onClick={handleSubmit}
           disabled={loading || (!message.trim() && !imageFile && !file)}
           size="icon"
-          className="h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover hover:to-secondary-hover shadow-lg hover:shadow-glow transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0 bg-gradient-to-br from-primary via-accent to-secondary hover:shadow-glow hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
         >
-          {loading ? <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" /> : <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />}
+          {loading ? (
+            <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          )}
         </Button>
       </div>
     </div>
