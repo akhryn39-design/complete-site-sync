@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
-import { Copy, Pencil, Trash2, Check, User, Sparkles, FileDown } from 'lucide-react';
+import { User, Copy, Check, Pencil, Trash2, FileDown } from 'lucide-react';
+import { ASIcon } from './icons/ASIcon';
 import { useToast } from './ui/use-toast';
 import { Textarea } from './ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
@@ -148,10 +149,10 @@ const ChatMessage = ({ id, role, content, imageUrl, onUpdate }: ChatMessageProps
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-        isUser ? 'bg-primary shadow-md' : 'bg-gradient-to-br from-primary via-accent to-secondary shadow-glow animate-pulse-slow'
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-elegant ${
+        isUser ? 'bg-primary' : 'bg-card/80 backdrop-blur-sm border-2 border-primary/30'
       }`}>
-        {isUser ? <User className="w-5 h-5 text-primary-foreground" /> : <Sparkles className="w-5 h-5 text-primary-foreground animate-pulse" />}
+        {isUser ? <User className="w-5 h-5 text-primary-foreground" /> : <ASIcon className="w-7 h-7" />}
       </div>
 
       <div className="flex-1 min-w-0">
