@@ -156,7 +156,7 @@ ${materialsContext}
       return msg;
     });
 
-    // Use gemini-3-pro-preview for enhanced multimodal capabilities
+    // Use gemini-2.5-flash for fast and high-quality multimodal responses
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -164,13 +164,13 @@ ${materialsContext}
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-pro-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           ...transformedMessages
         ],
         stream: true,
-        temperature: 0.7,
+        temperature: 0.4,
         max_tokens: 16000,
         top_p: 0.95,
       }),

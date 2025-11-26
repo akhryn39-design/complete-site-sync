@@ -23,14 +23,14 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Convert base64 to Blob
-    const audioBuffer = Uint8Array.from(atob(audio), c => c.charCodeAt(0));
-    const audioBlob = new Blob([audioBuffer], { type: "audio/webm" });
-
-    // Convert audio to base64 for Gemini
-    const arrayBuffer = await audioBlob.arrayBuffer();
-    const bytes = new Uint8Array(arrayBuffer);
-    const base64Audio = btoa(String.fromCharCode(...bytes));
+    // Use provided base64 audio directly and strip data URL prefix if present
+    let base64Audio = audio as string;
+    if (base64Audio.startsWith("data:")) {
+      const commaIndex = base64Audio.indexOf(",");
+      if (commaIndex !== -1) {
+        base64Audio = base64Audio.slice(commaIndex + 1);
+      }
+    }
 
     // Use Gemini for audio transcription
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {

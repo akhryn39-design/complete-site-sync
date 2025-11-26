@@ -161,18 +161,30 @@ const Chat = () => {
     }
     setLoading(true);
     try {
-      // Add user message
-      const {
-        error: messageError
-      } = await supabase.from('messages').insert([{
-        conversation_id: conversationId,
-        role: 'user',
-        content,
-        image_url: imageUrl
-      }]);
-      if (messageError) throw messageError;
+       // Add user message
+       const {
+         data: insertedMessage,
+         error: messageError
+       } = await supabase
+         .from('messages')
+         .insert([
+           {
+             conversation_id: conversationId,
+             role: 'user',
+             content,
+             image_url: imageUrl
+           }
+         ])
+         .select()
+         .single();
 
-      // Get AI response with streaming
+       if (messageError) throw messageError;
+
+       if (insertedMessage) {
+         setMessages(prev => [...prev, insertedMessage as Message]);
+       }
+
+       // Get AI response with streaming
       const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-ai`;
       const resp = await fetch(CHAT_URL, {
         method: 'POST',
