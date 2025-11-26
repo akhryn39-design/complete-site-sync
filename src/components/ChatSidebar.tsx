@@ -289,6 +289,21 @@ const ChatSidebar = ({
         </ScrollArea>
 
         <div className="p-4 border-t space-y-2">
+          <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 mb-2">
+            <p className="text-xs text-muted-foreground mb-1">پشتیبانی</p>
+            <a
+              href="https://t.me/Heart83frozen"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-primary hover:underline flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.67-.52.36-.99.53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.37-.48 1.02-.73 4-1.74 6.68-2.88 8.03-3.43 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.39.02.11.04.35.02.54z"/>
+              </svg>
+              @Heart83frozen
+            </a>
+          </div>
+
           {isAdmin && (
             <Dialog open={showAdminPanel} onOpenChange={setShowAdminPanel}>
               <DialogTrigger asChild>

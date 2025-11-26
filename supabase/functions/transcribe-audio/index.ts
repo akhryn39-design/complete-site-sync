@@ -27,19 +27,39 @@ serve(async (req) => {
     const audioBuffer = Uint8Array.from(atob(audio), c => c.charCodeAt(0));
     const audioBlob = new Blob([audioBuffer], { type: "audio/webm" });
 
-    // Create FormData
-    const formData = new FormData();
-    formData.append("file", audioBlob, "audio.webm");
-    formData.append("model", "whisper-1");
-    formData.append("language", "fa");
+    // Convert audio to base64 for Gemini
+    const arrayBuffer = await audioBlob.arrayBuffer();
+    const bytes = new Uint8Array(arrayBuffer);
+    const base64Audio = btoa(String.fromCharCode(...bytes));
 
-    // Call OpenAI Whisper API through Lovable AI Gateway
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/audio/transcriptions", {
+    // Use Gemini for audio transcription
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
       },
-      body: formData,
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: "لطفاً این فایل صوتی را به صورت دقیق به متن فارسی تبدیل کن. فقط متن را بنویس و هیچ توضیح اضافی اضافه نکن."
+              },
+              {
+                type: "audio",
+                audio: {
+                  data: base64Audio,
+                  format: "webm"
+                }
+              }
+            ]
+          }
+        ]
+      }),
     });
 
     if (!response.ok) {
@@ -49,9 +69,14 @@ serve(async (req) => {
     }
 
     const data = await response.json();
+    const transcribedText = data.choices?.[0]?.message?.content || "";
+
+    if (!transcribedText) {
+      throw new Error("متنی از صدا استخراج نشد");
+    }
 
     return new Response(
-      JSON.stringify({ text: data.text }),
+      JSON.stringify({ text: transcribedText }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
