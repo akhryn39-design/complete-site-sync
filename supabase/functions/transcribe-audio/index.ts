@@ -32,7 +32,9 @@ serve(async (req) => {
       }
     }
 
-    // Use Gemini for audio transcription
+    console.log("Processing audio transcription, base64 length:", base64Audio.length);
+
+    // Use Gemini for audio transcription with improved prompt
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -47,18 +49,28 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "لطفاً این فایل صوتی را به صورت دقیق به متن فارسی تبدیل کن. فقط متن را بنویس و هیچ توضیح اضافی اضافه نکن."
+                text: `شما یک سیستم تبدیل گفتار به متن هستید. لطفاً این فایل صوتی را با دقت بالا گوش کنید و متن گفتار را به فارسی بنویسید.
+
+قوانین مهم:
+1. فقط متن گفتار را بنویسید - هیچ توضیح اضافی ننویسید
+2. اگر صدا فارسی است، به فارسی بنویسید
+3. اگر صدا انگلیسی است، به انگلیسی بنویسید  
+4. از نشانه‌گذاری مناسب استفاده کنید
+5. اگر چیزی نامفهوم است، از [...] استفاده کنید
+6. صدا را کامل و دقیق متن‌نویسی کنید`
               },
               {
-                type: "audio",
-                audio: {
+                type: "input_audio",
+                input_audio: {
                   data: base64Audio,
-                  format: "webm"
+                  format: "wav"
                 }
               }
             ]
           }
-        ]
+        ],
+        max_tokens: 4000,
+        temperature: 0.1
       }),
     });
 
@@ -69,6 +81,8 @@ serve(async (req) => {
     }
 
     const data = await response.json();
+    console.log("Transcription response:", JSON.stringify(data));
+    
     const transcribedText = data.choices?.[0]?.message?.content || "";
 
     if (!transcribedText) {
@@ -76,7 +90,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ text: transcribedText }),
+      JSON.stringify({ text: transcribedText.trim() }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }

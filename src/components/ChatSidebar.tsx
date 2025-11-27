@@ -126,8 +126,9 @@ const ChatSidebar = ({
     navigate('/auth');
   };
 
-  const handleDeleteConversation = async (id: string) => {
-    if (!confirm('آیا مطمئن هستید؟')) return;
+  const handleDeleteConversation = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm('آیا مطمئن هستید که می‌خواهید این گفتگو را حذف کنید؟')) return;
 
     const { error } = await supabase
       .from('conversations')
@@ -144,7 +145,7 @@ const ChatSidebar = ({
     }
 
     toast({
-      title: 'حذف شد',
+      title: '🗑️ حذف شد',
       description: 'گفتگو با موفقیت حذف شد'
     });
 
@@ -162,17 +163,17 @@ const ChatSidebar = ({
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
           onClick={onToggle}
         />
       )}
 
       <div
-        className={`fixed md:relative inset-y-0 right-0 w-80 bg-sidebar border-l flex flex-col transition-transform duration-300 z-50 ${
+        className={`fixed md:relative inset-y-0 right-0 w-80 bg-sidebar border-l border-border/50 flex flex-col transition-transform duration-300 z-50 ${
           isOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'
         }`}
       >
-        <div className="p-4 border-b bg-sidebar-primary text-sidebar-primary-foreground">
+        <div className="p-4 border-b border-border/50 bg-gradient-to-br from-sidebar-primary to-sidebar-primary/90 text-sidebar-primary-foreground">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               {isEditingName ? (
@@ -180,20 +181,22 @@ const ChatSidebar = ({
                   <Input
                     value={editedName}
                     onChange={(e) => setEditedName(e.target.value)}
-                    className="h-8 text-sm"
+                    className="h-8 text-sm bg-background/10 border-border/30 text-foreground"
                   />
-                  <Button size="sm" onClick={handleUpdateName}>✓</Button>
-                  <Button size="sm" variant="ghost" onClick={() => setIsEditingName(false)}>✗</Button>
+                  <Button size="sm" onClick={handleUpdateName} className="h-8 px-2">✓</Button>
+                  <Button size="sm" variant="ghost" onClick={() => setIsEditingName(false)} className="h-8 px-2">✗</Button>
                 </div>
               ) : (
                 <>
-                  <User className="w-5 h-5" />
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                    <User className="w-5 h-5" />
+                  </div>
                   <div>
                     <div className="font-semibold">{profile?.full_name || 'کاربر'}</div>
                     <Button
                       variant="link"
                       size="sm"
-                      className="h-auto p-0 text-xs text-sidebar-primary-foreground/80"
+                      className="h-auto p-0 text-xs text-sidebar-primary-foreground/80 hover:text-sidebar-primary-foreground"
                       onClick={() => setIsEditingName(true)}
                     >
                       ویرایش نام
@@ -207,7 +210,7 @@ const ChatSidebar = ({
                 variant="ghost"
                 size="icon"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="h-8 w-8"
+                className="h-8 w-8 hover:bg-sidebar-primary-foreground/10"
               >
                 {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
@@ -215,7 +218,7 @@ const ChatSidebar = ({
                 variant="ghost"
                 size="icon"
                 onClick={onToggle}
-                className="h-8 w-8 md:hidden"
+                className="h-8 w-8 md:hidden hover:bg-sidebar-primary-foreground/10"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -224,8 +227,7 @@ const ChatSidebar = ({
 
           <Button
             onClick={onNewConversation}
-            className="w-full gap-2"
-            variant="secondary"
+            className="w-full gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-md hover:shadow-lg transition-all"
           >
             <Plus className="w-4 h-4" />
             گفتگوی جدید
@@ -238,47 +240,56 @@ const ChatSidebar = ({
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="جستجو..."
-              className="pr-10"
+              placeholder="جستجو در گفتگوها..."
+              className="pr-10 bg-background/50 border-border/50"
             />
           </div>
         </div>
 
         <ScrollArea className="flex-1">
           <div className="p-3 space-y-2">
-            {filteredConversations.map((conv) => (
-              <div
-                key={conv.id}
-                className={`group flex items-center gap-2 p-3 rounded-lg cursor-pointer transition-colors ${
-                  currentConversationId === conv.id
-                    ? 'bg-sidebar-accent'
-                    : 'hover:bg-sidebar-accent/50'
-                }`}
-                onClick={() => {
-                  onConversationSelect(conv.id);
-                  if (window.innerWidth < 768) onToggle();
-                }}
-              >
-                <MessageSquare className="w-4 h-4 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm truncate">{conv.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(conv.created_at).toLocaleDateString('fa-IR')}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteConversation(conv.id);
+            {filteredConversations.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">
+                گفتگویی یافت نشد
+              </div>
+            ) : (
+              filteredConversations.map((conv) => (
+                <div
+                  key={conv.id}
+                  className={`group flex items-center gap-2 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
+                    currentConversationId === conv.id
+                      ? 'bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 shadow-sm'
+                      : 'hover:bg-sidebar-accent/50 border border-transparent'
+                  }`}
+                  onClick={() => {
+                    onConversationSelect(conv.id);
+                    if (window.innerWidth < 768) onToggle();
                   }}
                 >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    currentConversationId === conv.id 
+                      ? 'bg-gradient-to-br from-primary to-secondary' 
+                      : 'bg-muted'
+                  }`}>
+                    <MessageSquare className={`w-4 h-4 ${currentConversationId === conv.id ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm truncate font-medium">{conv.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(conv.created_at).toLocaleDateString('fa-IR')}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
+                    onClick={(e) => handleDeleteConversation(conv.id, e)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))
+            )}
           </div>
 
           <div className="p-3">
@@ -288,14 +299,14 @@ const ChatSidebar = ({
           <AdDisplay position="sidebar" />
         </ScrollArea>
 
-        <div className="p-4 border-t space-y-2">
-          <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 mb-2">
-            <p className="text-xs text-muted-foreground mb-1">پشتیبانی</p>
+        <div className="p-4 border-t border-border/50 space-y-2">
+          <div className="p-3 rounded-xl bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 border border-primary/20 mb-2">
+            <p className="text-xs text-muted-foreground mb-1">📞 پشتیبانی</p>
             <a
               href="https://t.me/Heart83frozen"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium text-primary hover:underline flex items-center gap-2"
+              className="text-sm font-medium text-primary hover:text-secondary transition-colors flex items-center gap-2"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.67-.52.36-.99.53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.37-.48 1.02-.73 4-1.74 6.68-2.88 8.03-3.43 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.39.02.11.04.35.02.54z"/>
@@ -307,7 +318,7 @@ const ChatSidebar = ({
           {isAdmin && (
             <Dialog open={showAdminPanel} onOpenChange={setShowAdminPanel}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full gap-2">
+                <Button variant="outline" className="w-full gap-2 border-primary/30 hover:bg-primary/10 hover:border-primary/50">
                   <Shield className="w-4 h-4" />
                   پنل مدیریت
                 </Button>
@@ -324,10 +335,10 @@ const ChatSidebar = ({
           <Button
             variant="outline"
             onClick={handleSignOut}
-            className="w-full gap-2"
+            className="w-full gap-2 border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 hover:text-destructive transition-all"
           >
             <LogOut className="w-4 h-4" />
-            خروج
+            خروج از حساب
           </Button>
         </div>
       </div>
