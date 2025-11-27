@@ -34,7 +34,9 @@ serve(async (req) => {
 
     console.log("Processing audio transcription, base64 length:", base64Audio.length);
 
-    // Use Gemini for audio transcription with improved prompt
+    // Use OpenAI Whisper-compatible endpoint for audio transcription
+    const audioDataUrl = `data:audio/webm;base64,${base64Audio}`;
+    
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -49,28 +51,25 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: `شما یک سیستم تبدیل گفتار به متن هستید. لطفاً این فایل صوتی را با دقت بالا گوش کنید و متن گفتار را به فارسی بنویسید.
+                text: `این یک فایل صوتی است. لطفاً متن گفتار را دقیقاً بنویسید.
 
-قوانین مهم:
-1. فقط متن گفتار را بنویسید - هیچ توضیح اضافی ننویسید
-2. اگر صدا فارسی است، به فارسی بنویسید
-3. اگر صدا انگلیسی است، به انگلیسی بنویسید  
-4. از نشانه‌گذاری مناسب استفاده کنید
-5. اگر چیزی نامفهوم است، از [...] استفاده کنید
-6. صدا را کامل و دقیق متن‌نویسی کنید`
+دستورات:
+- فقط متن گفتار را بنویس
+- اگر فارسی است به فارسی بنویس
+- اگر انگلیسی است به انگلیسی بنویس
+- هیچ توضیح اضافی نده`
               },
               {
-                type: "input_audio",
-                input_audio: {
-                  data: base64Audio,
-                  format: "wav"
+                type: "image_url",
+                image_url: {
+                  url: audioDataUrl
                 }
               }
             ]
           }
         ],
-        max_tokens: 4000,
-        temperature: 0.1
+        max_tokens: 2000,
+        temperature: 0
       }),
     });
 

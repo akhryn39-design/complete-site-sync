@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 import { Input } from './ui/input';
-import { Plus, MessageSquare, LogOut, User, Search, Moon, Sun, X, Trash2, Settings, Shield } from 'lucide-react';
+import { Plus, MessageSquare, LogOut, User, Search, Moon, Sun, X, Trash2, Shield, Edit2 } from 'lucide-react';
 import { useToast } from './ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
@@ -40,6 +40,9 @@ const ChatSidebar = ({
   const [editedName, setEditedName] = useState('');
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [supportTelegram, setSupportTelegram] = useState('@Heart83frozen');
+  const [isEditingSupport, setIsEditingSupport] = useState(false);
+  const [editedSupport, setEditedSupport] = useState('@Heart83frozen');
   const { toast } = useToast();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
@@ -48,7 +51,45 @@ const ChatSidebar = ({
     loadConversations();
     loadProfile();
     checkAdminStatus();
+    loadSupportSetting();
   }, []);
+
+  const loadSupportSetting = async () => {
+    const { data } = await supabase
+      .from('system_settings')
+      .select('value')
+      .eq('key', 'support_telegram')
+      .single();
+    
+    if (data?.value) {
+      const val = typeof data.value === 'string' ? data.value.replace(/"/g, '') : String(data.value);
+      setSupportTelegram(val);
+      setEditedSupport(val);
+    }
+  };
+
+  const handleUpdateSupport = async () => {
+    const { error } = await supabase
+      .from('system_settings')
+      .update({ value: `"${editedSupport}"` })
+      .eq('key', 'support_telegram');
+
+    if (error) {
+      toast({
+        title: 'خطا در ویرایش',
+        description: error.message,
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    toast({
+      title: '✅ ذخیره شد',
+      description: 'آیدی پشتیبانی با موفقیت تغییر یافت'
+    });
+    setSupportTelegram(editedSupport);
+    setIsEditingSupport(false);
+  };
 
   const checkAdminStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -282,8 +323,9 @@ const ChatSidebar = ({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
+                    className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all flex-shrink-0"
                     onClick={(e) => handleDeleteConversation(conv.id, e)}
+                    title="حذف گفتگو"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -301,18 +343,44 @@ const ChatSidebar = ({
 
         <div className="p-4 border-t border-border/50 space-y-2">
           <div className="p-3 rounded-xl bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 border border-primary/20 mb-2">
-            <p className="text-xs text-muted-foreground mb-1">📞 پشتیبانی</p>
-            <a
-              href="https://t.me/Heart83frozen"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium text-primary hover:text-secondary transition-colors flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.67-.52.36-.99.53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.37-.48 1.02-.73 4-1.74 6.68-2.88 8.03-3.43 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.39.02.11.04.35.02.54z"/>
-              </svg>
-              @Heart83frozen
-            </a>
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs text-muted-foreground">📞 پشتیبانی</p>
+              {isAdmin && !isEditingSupport && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-muted-foreground hover:text-primary"
+                  onClick={() => setIsEditingSupport(true)}
+                  title="ویرایش آیدی پشتیبانی"
+                >
+                  <Edit2 className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
+            {isEditingSupport ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  value={editedSupport}
+                  onChange={(e) => setEditedSupport(e.target.value)}
+                  className="h-8 text-sm bg-background/50"
+                  placeholder="@username"
+                />
+                <Button size="sm" onClick={handleUpdateSupport} className="h-8 px-2">✓</Button>
+                <Button size="sm" variant="ghost" onClick={() => setIsEditingSupport(false)} className="h-8 px-2">✗</Button>
+              </div>
+            ) : (
+              <a
+                href={`https://t.me/${supportTelegram.replace('@', '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-primary hover:text-secondary transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.67-.52.36-.99.53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.37-.48 1.02-.73 4-1.74 6.68-2.88 8.03-3.43 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.39.02.11.04.35.02.54z"/>
+                </svg>
+                {supportTelegram}
+              </a>
+            )}
           </div>
 
           {isAdmin && (
