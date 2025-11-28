@@ -160,40 +160,51 @@ const ChatMessage = ({ id, role, content, imageUrl, onUpdate, onRegenerateRespon
 
   return (
     <div
-      className={`flex gap-3 p-4 rounded-2xl transition-all duration-300 ${
+      className={`group flex gap-4 p-5 rounded-3xl transition-all duration-500 ${
         isUser
-          ? 'bg-gradient-to-br from-primary/10 via-primary/5 to-transparent ml-4 md:ml-12 border border-primary/20'
-          : 'bg-gradient-to-br from-secondary/10 via-card/50 to-transparent mr-4 md:mr-12 border border-secondary/20'
-      } hover:shadow-md`}
+          ? 'bg-gradient-to-br from-primary/15 via-primary/8 to-transparent ml-4 md:ml-16 border border-primary/25 hover:border-primary/40 hover:shadow-elegant'
+          : 'bg-gradient-to-br from-card via-card/90 to-secondary/5 mr-4 md:mr-16 border border-border/50 hover:border-secondary/30 hover:shadow-lg'
+      }`}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-elegant ${
+      {/* Avatar */}
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
         isUser 
-          ? 'bg-gradient-to-br from-primary to-primary-hover' 
-          : 'bg-gradient-to-br from-card via-card to-secondary/10 backdrop-blur-sm border-2 border-secondary/30'
+          ? 'bg-gradient-to-br from-primary via-primary-hover to-secondary shadow-button group-hover:shadow-glow group-hover:scale-110' 
+          : 'bg-gradient-to-br from-card to-muted backdrop-blur-xl border-2 border-secondary/30 shadow-card group-hover:border-secondary/50 group-hover:shadow-elegant'
       }`}>
-        {isUser ? <User className="w-5 h-5 text-primary-foreground" /> : <ASIcon className="w-7 h-7" />}
+        {isUser ? (
+          <User className="w-6 h-6 text-primary-foreground" />
+        ) : (
+          <ASIcon className="w-8 h-8" />
+        )}
       </div>
 
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 space-y-3">
         {imageUrl && (
-          <img src={imageUrl} alt="Uploaded" className="max-w-xs rounded-lg mb-2 shadow-md" />
+          <img 
+            src={imageUrl} 
+            alt="Uploaded" 
+            className="max-w-xs rounded-2xl shadow-lg border border-border/30 hover:shadow-xl transition-shadow duration-300" 
+          />
         )}
 
         {isEditing ? (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <Textarea
               value={editedContent}
               onChange={(e) => setEditedContent(e.target.value)}
-              className="min-h-[100px] bg-background/50"
+              className="min-h-[100px] bg-background/80 backdrop-blur-sm border-primary/30 focus:border-primary rounded-xl"
             />
             <div className="flex gap-2">
-              <Button size="sm" onClick={handleSave} className="gap-1">
-                <RefreshCw className="w-3 h-3" />
+              <Button size="sm" onClick={handleSave} className="gap-2 gradient-primary shadow-button hover:shadow-glow rounded-xl">
+                <RefreshCw className="w-4 h-4" />
                 ذخیره و دریافت پاسخ جدید
               </Button>
-              <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>لغو</Button>
+              <Button size="sm" variant="outline" onClick={() => setIsEditing(false)} className="rounded-xl">
+                لغو
+              </Button>
             </div>
           </div>
         ) : (
@@ -202,38 +213,40 @@ const ChatMessage = ({ id, role, content, imageUrl, onUpdate, onRegenerateRespon
           </div>
         )}
 
-        {showActions && !isEditing && (
-          <div className="flex gap-1 mt-3 animate-in fade-in duration-200">
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleCopy}
-              className="h-7 px-2 text-xs hover:bg-primary/10"
-            >
-              {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-            </Button>
-            {isUser && (
-              <>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setIsEditing(true)}
-                  className="h-7 px-2 text-xs hover:bg-secondary/10"
-                >
-                  <Pencil className="w-3 h-3" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleDelete}
-                  className="h-7 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </Button>
-              </>
-            )}
-          </div>
-        )}
+        {/* Action buttons */}
+        <div className={`flex gap-2 pt-1 transition-all duration-300 ${showActions && !isEditing ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'}`}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleCopy}
+            className="h-8 px-3 text-xs rounded-xl bg-muted/50 hover:bg-primary/15 hover:text-primary transition-all duration-200"
+          >
+            {copied ? <Check className="w-4 h-4 text-accent" /> : <Copy className="w-4 h-4" />}
+            <span className="mr-1.5">{copied ? 'کپی شد' : 'کپی'}</span>
+          </Button>
+          {isUser && (
+            <>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsEditing(true)}
+                className="h-8 px-3 text-xs rounded-xl bg-muted/50 hover:bg-secondary/15 hover:text-secondary transition-all duration-200"
+              >
+                <Pencil className="w-4 h-4" />
+                <span className="mr-1.5">ویرایش</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleDelete}
+                className="h-8 px-3 text-xs rounded-xl bg-muted/50 text-destructive hover:bg-destructive/15 transition-all duration-200"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span className="mr-1.5">حذف</span>
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
