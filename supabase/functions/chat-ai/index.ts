@@ -66,13 +66,16 @@ serve(async (req) => {
 
     let materialsContext = "";
     if (materials && materials.length > 0) {
+      // Build the base URL for storage
+      const storageBaseUrl = `${SUPABASE_URL}/storage/v1/object/public/educational-files`;
+      
       const materialsWithUrls = materials.map(m => {
-        const { data } = supabase.storage
-          .from('educational-files')
-          .getPublicUrl(m.file_path);
+        // Properly encode the file path for URL
+        const encodedPath = encodeURIComponent(m.file_path).replace(/%2F/g, '/');
+        const downloadUrl = `${storageBaseUrl}/${encodedPath}`;
         return {
           ...m,
-          downloadUrl: data.publicUrl
+          downloadUrl
         };
       });
 
@@ -81,14 +84,15 @@ ${materialsWithUrls.map(m =>
   `\n• عنوان: ${m.title}
    دسته‌بندی: ${m.category}
    توضیحات: ${m.description || 'بدون توضیحات'}
-   URL: ${m.downloadUrl}`
+   لینک دانلود مستقیم: ${m.downloadUrl}`
 ).join('\n')}
 
-⚠️ **دستورالعمل حیاتی برای لینک‌ها:**
-- وقتی کاربر فایلی می‌خواهد، لینک URL بالا را **دقیقاً و بدون هیچ تغییری** کپی کنید
-- هرگز از فرمت مارک‌داون [متن](لینک) استفاده نکنید
-- لینک را به صورت خام و ساده بنویسید: https://...
-- هرگز کاراکترهای ] یا [ یا ( یا ) را به لینک اضافه نکنید`;
+⚠️ **قوانین حیاتی و اجباری برای لینک‌ها:**
+1. وقتی کاربر فایل یا کتابی می‌خواهد، ابتدا عنوان آن را در لیست بالا جستجو کنید
+2. اگر پیدا شد، لینک "لینک دانلود مستقیم" را دقیقاً کپی کنید
+3. لینک را به صورت URL ساده و خام بنویسید (مثال: ${storageBaseUrl}/example.pdf)
+4. هرگز از فرمت [متن](لینک) استفاده نکنید
+5. هرگز کاراکترهای اضافی مثل ] یا [ یا ) یا ( را به لینک اضافه نکنید`;
     }
 
 const systemPrompt = `شما یک دستیار هوشمند پیشرفته و فوق‌العاده باهوش دانشگاه پیام نور هستید با قابلیت‌های گسترده و پیشرفته.

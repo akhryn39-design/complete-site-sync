@@ -24,32 +24,44 @@ const ChatMessage = ({ id, role, content, imageUrl, onUpdate, onRegenerateRespon
   const isUser = role === 'user';
 
   const renderContent = (text: string) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const parts = text.split(urlRegex);
+    // Clean up markdown link syntax if AI accidentally used it
+    let cleanText = text
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$2') // Replace [text](url) with just url
+      .replace(/\]\(/g, '') // Remove stray ](
+      .replace(/\)]/g, '') // Remove stray )]
+      .replace(/\]https/g, 'https') // Fix ]https to https
+      .replace(/pdf\]/g, 'pdf') // Remove trailing ] from pdf files
+      .replace(/\)\s*$/gm, ''); // Remove trailing ) at end of lines
+    
+    const urlRegex = /(https?:\/\/[^\s\)\]<>"]+)/g;
+    const parts = cleanText.split(urlRegex);
+    
     return parts.map((part, i) => {
       if (part.startsWith('http://') || part.startsWith('https://')) {
-        const isDownloadLink = part.includes('supabase.co/storage') ||
-                               part.includes('educational-files') ||
-                               part.endsWith('.pdf') ||
-                               part.endsWith('.doc') ||
-                               part.endsWith('.docx') ||
-                               part.endsWith('.ppt') ||
-                               part.endsWith('.pptx');
+        // Clean the URL - remove any trailing special characters
+        let cleanUrl = part
+          .replace(/[\]\)\[<>]+$/, '') // Remove trailing brackets
+          .replace(/\s+$/, ''); // Remove trailing whitespace
+        
+        const isDownloadLink = cleanUrl.includes('supabase.co/storage') ||
+                               cleanUrl.includes('educational-files') ||
+                               cleanUrl.includes('chat-images') ||
+                               /\.(pdf|doc|docx|ppt|pptx|xlsx|xls)($|\?)/i.test(cleanUrl);
 
         return (
           <a
             key={i}
-            href={part}
+            href={cleanUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className={`inline-flex items-center gap-2 px-4 py-2 my-1 rounded-xl font-bold transition-all duration-300 break-all ${
+            className={`inline-flex items-center gap-2 px-4 py-2.5 my-2 rounded-xl font-bold transition-all duration-300 break-all ${
               isDownloadLink
-                ? 'bg-gradient-to-r from-primary via-secondary to-accent text-primary-foreground hover:shadow-elegant hover:scale-105 animate-pulse'
-                : 'text-primary underline hover:text-secondary'
+                ? 'bg-gradient-to-r from-primary via-secondary to-accent text-primary-foreground hover:shadow-glow hover:scale-105 shadow-elegant'
+                : 'text-primary underline decoration-2 hover:text-secondary'
             }`}
           >
-            {isDownloadLink && <FileDown className="w-4 h-4 flex-shrink-0" />}
-            {isDownloadLink ? '📥 دانلود فایل - کلیک کنید' : part}
+            {isDownloadLink && <FileDown className="w-5 h-5 flex-shrink-0 animate-bounce" />}
+            {isDownloadLink ? '📥 کلیک کنید - دانلود فایل' : part}
           </a>
         );
       }
