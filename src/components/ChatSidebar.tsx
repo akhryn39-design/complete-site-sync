@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 import { Input } from './ui/input';
-import { Plus, MessageSquare, LogOut, User, Search, Moon, Sun, X, Trash2, Shield, Edit2 } from 'lucide-react';
+import { Plus, MessageSquare, LogOut, User, Search, Moon, Sun, X, Trash2, Shield, Edit2, Check, XCircle } from 'lucide-react';
 import { useToast } from './ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
@@ -118,10 +118,18 @@ const ChatSidebar = ({
   };
 
   const handleUpdateName = async () => {
-    if (!profile) return;
+    if (!profile || !editedName.trim()) {
+      toast({
+        title: 'خطا',
+        description: 'نام نمی‌تواند خالی باشد',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
     const { error } = await supabase
       .from('profiles')
-      .update({ full_name: editedName })
+      .update({ full_name: editedName.trim() })
       .eq('id', profile.id);
 
     if (error) {
@@ -214,32 +222,56 @@ const ChatSidebar = ({
           isOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'
         }`}
       >
+        {/* Header */}
         <div className="p-4 border-b border-border/50 bg-gradient-to-br from-sidebar-primary to-sidebar-primary/90 text-sidebar-primary-foreground">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
               {isEditingName ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-1">
                   <Input
                     value={editedName}
                     onChange={(e) => setEditedName(e.target.value)}
-                    className="h-8 text-sm bg-background/10 border-border/30 text-foreground"
+                    className="h-9 text-sm bg-background/20 border-border/30 text-foreground placeholder:text-muted-foreground"
+                    placeholder="نام شما"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleUpdateName();
+                      if (e.key === 'Escape') setIsEditingName(false);
+                    }}
                   />
-                  <Button size="sm" onClick={handleUpdateName} className="h-8 px-2">✓</Button>
-                  <Button size="sm" variant="ghost" onClick={() => setIsEditingName(false)} className="h-8 px-2">✗</Button>
+                  <Button 
+                    size="sm" 
+                    onClick={handleUpdateName} 
+                    className="h-9 w-9 p-0 bg-green-500 hover:bg-green-600"
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => {
+                      setIsEditingName(false);
+                      setEditedName(profile?.full_name || 'کاربر');
+                    }} 
+                    className="h-9 w-9 p-0 hover:bg-destructive/20 hover:text-destructive"
+                  >
+                    <XCircle className="h-4 w-4" />
+                  </Button>
                 </div>
               ) : (
                 <>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-elegant">
                     <User className="w-5 h-5" />
                   </div>
-                  <div>
-                    <div className="font-semibold">{profile?.full_name || 'کاربر'}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-base truncate">{profile?.full_name || 'کاربر'}</div>
                     <Button
                       variant="link"
                       size="sm"
-                      className="h-auto p-0 text-xs text-sidebar-primary-foreground/80 hover:text-sidebar-primary-foreground"
+                      className="h-auto p-0 text-xs text-sidebar-primary-foreground/80 hover:text-sidebar-primary-foreground underline"
                       onClick={() => setIsEditingName(true)}
                     >
+                      <Edit2 className="w-3 h-3 ml-1" />
                       ویرایش نام
                     </Button>
                   </div>
@@ -251,7 +283,7 @@ const ChatSidebar = ({
                 variant="ghost"
                 size="icon"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="h-8 w-8 hover:bg-sidebar-primary-foreground/10"
+                className="h-9 w-9 hover:bg-sidebar-primary-foreground/10"
               >
                 {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
@@ -259,7 +291,7 @@ const ChatSidebar = ({
                 variant="ghost"
                 size="icon"
                 onClick={onToggle}
-                className="h-8 w-8 md:hidden hover:bg-sidebar-primary-foreground/10"
+                className="h-9 w-9 md:hidden hover:bg-sidebar-primary-foreground/10"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -268,13 +300,14 @@ const ChatSidebar = ({
 
           <Button
             onClick={onNewConversation}
-            className="w-full gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-md hover:shadow-lg transition-all"
+            className="w-full gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-elegant hover:shadow-glow transition-all font-bold"
           >
             <Plus className="w-4 h-4" />
             گفتگوی جدید
           </Button>
         </div>
 
+        {/* Search */}
         <div className="p-3">
           <div className="relative">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -287,6 +320,7 @@ const ChatSidebar = ({
           </div>
         </div>
 
+        {/* Conversations List */}
         <ScrollArea className="flex-1">
           <div className="p-3 space-y-2">
             {filteredConversations.length === 0 ? (
@@ -299,31 +333,33 @@ const ChatSidebar = ({
                   key={conv.id}
                   className={`group flex items-center gap-2 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                     currentConversationId === conv.id
-                      ? 'bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 shadow-sm'
-                      : 'hover:bg-sidebar-accent/50 border border-transparent'
+                      ? 'bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 shadow-md'
+                      : 'hover:bg-sidebar-accent/50 border border-transparent hover:border-border/30'
                   }`}
                   onClick={() => {
                     onConversationSelect(conv.id);
                     if (window.innerWidth < 768) onToggle();
                   }}
                 >
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
                     currentConversationId === conv.id 
-                      ? 'bg-gradient-to-br from-primary to-secondary' 
+                      ? 'bg-gradient-to-br from-primary to-secondary shadow-elegant' 
                       : 'bg-muted'
                   }`}>
                     <MessageSquare className={`w-4 h-4 ${currentConversationId === conv.id ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm truncate font-medium">{conv.title}</p>
+                    <p className="text-sm truncate font-semibold">{conv.title}</p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(conv.created_at).toLocaleDateString('fa-IR')}
                     </p>
                   </div>
+                  
+                  {/* Delete Button - Always Visible */}
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all flex-shrink-0"
+                    className="h-9 w-9 flex-shrink-0 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all rounded-lg"
                     onClick={(e) => handleDeleteConversation(conv.id, e)}
                     title="حذف گفتگو"
                   >
@@ -341,19 +377,23 @@ const ChatSidebar = ({
           <AdDisplay position="sidebar" />
         </ScrollArea>
 
-        <div className="p-4 border-t border-border/50 space-y-2">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 border border-primary/20 mb-2">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-xs text-muted-foreground">📞 پشتیبانی</p>
+        {/* Footer */}
+        <div className="p-4 border-t border-border/50 space-y-3">
+          {/* Support Section */}
+          <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 border border-primary/20">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-semibold text-foreground flex items-center gap-1">
+                📞 پشتیبانی تلگرام
+              </p>
               {isAdmin && !isEditingSupport && (
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 text-muted-foreground hover:text-primary"
+                  className="h-7 w-7 text-primary hover:text-primary hover:bg-primary/10"
                   onClick={() => setIsEditingSupport(true)}
                   title="ویرایش آیدی پشتیبانی"
                 >
-                  <Edit2 className="h-3 w-3" />
+                  <Edit2 className="h-3.5 w-3.5" />
                 </Button>
               )}
             </div>
@@ -364,18 +404,39 @@ const ChatSidebar = ({
                   onChange={(e) => setEditedSupport(e.target.value)}
                   className="h-8 text-sm bg-background/50"
                   placeholder="@username"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleUpdateSupport();
+                    if (e.key === 'Escape') setIsEditingSupport(false);
+                  }}
                 />
-                <Button size="sm" onClick={handleUpdateSupport} className="h-8 px-2">✓</Button>
-                <Button size="sm" variant="ghost" onClick={() => setIsEditingSupport(false)} className="h-8 px-2">✗</Button>
+                <Button 
+                  size="sm" 
+                  onClick={handleUpdateSupport} 
+                  className="h-8 w-8 p-0 bg-green-500 hover:bg-green-600"
+                >
+                  <Check className="h-3.5 w-3.5" />
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={() => {
+                    setIsEditingSupport(false);
+                    setEditedSupport(supportTelegram);
+                  }} 
+                  className="h-8 w-8 p-0"
+                >
+                  <XCircle className="h-3.5 w-3.5" />
+                </Button>
               </div>
             ) : (
               <a
                 href={`https://t.me/${supportTelegram.replace('@', '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-medium text-primary hover:text-secondary transition-colors flex items-center gap-2"
+                className="text-sm font-bold text-primary hover:text-secondary transition-colors flex items-center gap-2 group"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.67-.52.36-.99.53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.37-.48 1.02-.73 4-1.74 6.68-2.88 8.03-3.43 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.39.02.11.04.35.02.54z"/>
                 </svg>
                 {supportTelegram}
@@ -383,10 +444,11 @@ const ChatSidebar = ({
             )}
           </div>
 
+          {/* Admin Panel Button */}
           {isAdmin && (
             <Dialog open={showAdminPanel} onOpenChange={setShowAdminPanel}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full gap-2 border-primary/30 hover:bg-primary/10 hover:border-primary/50">
+                <Button variant="outline" className="w-full gap-2 border-primary/30 hover:bg-primary/10 hover:border-primary/50 font-semibold">
                   <Shield className="w-4 h-4" />
                   پنل مدیریت
                 </Button>
@@ -400,10 +462,11 @@ const ChatSidebar = ({
             </Dialog>
           )}
 
+          {/* Logout Button */}
           <Button
             variant="outline"
             onClick={handleSignOut}
-            className="w-full gap-2 border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 hover:text-destructive transition-all"
+            className="w-full gap-2 border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 hover:text-destructive transition-all font-semibold"
           >
             <LogOut className="w-4 h-4" />
             خروج از حساب

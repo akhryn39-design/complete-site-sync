@@ -7,14 +7,19 @@
     font-family: 'Vazirmatn', sans-serif;
   }
 
-  .font-decorative {
-    font-family: 'Lalezar', cursive;
-    letter-spacing: 0.02em;
+  h1, h2, h3, .font-decorative {
+    font-family: 'Lalezar', 'Vazirmatn', cursive;
+    letter-spacing: 0.03em;
   }
 
   .font-calligraphy {
     font-family: 'Amiri', serif;
   }
+
+  /* Enhanced typography */
+  h1 { @apply text-3xl md:text-4xl font-bold; }
+  h2 { @apply text-2xl md:text-3xl font-bold; }
+  h3 { @apply text-xl md:text-2xl font-semibold; }
 }
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
