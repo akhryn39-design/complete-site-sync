@@ -491,7 +491,7 @@ const Chat = () => {
                 </div>
                 <div className="absolute -inset-1 bg-gradient-to-br from-primary/50 to-secondary/50 rounded-2xl blur-xl opacity-50 -z-10" />
               </div>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 gradient-text">به دستیار هوشمند خوش آمدید!</h3>
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 gradient-text">خوش آمدیدAS به</h3>
               <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-md">
                 می‌توانید سوال بپرسید، تصویر بفرستید، فایل آپلود کنید یا با صدا صحبت کنید
               </p>
