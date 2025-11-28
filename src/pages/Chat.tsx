@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { FileDown, Loader2, Menu, MessageSquare, Search, ImageIcon, BookOpen, Newspaper, Shield, User, Paperclip, Mic } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
-
 interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -18,10 +17,11 @@ interface Message {
   image_url?: string | null;
   created_at: string;
 }
-
 const Chat = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
@@ -29,10 +29,13 @@ const Chat = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     checkAuth();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: {
+        subscription
+      }
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser(session.user);
         checkAdminRole(session.user.id);
@@ -42,7 +45,6 @@ const Chat = () => {
     });
     return () => subscription.unsubscribe();
   }, [navigate]);
-
   useEffect(() => {
     if (!currentConversationId) return;
     loadMessages();
@@ -51,17 +53,20 @@ const Chat = () => {
       unsubscribe?.();
     };
   }, [currentConversationId]);
-
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({
+      behavior: 'smooth'
+    });
   };
-
   const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: {
+        session
+      }
+    } = await supabase.auth.getSession();
     if (!session) {
       navigate('/auth');
     } else {
@@ -69,10 +74,12 @@ const Chat = () => {
       checkAdminRole(session.user.id);
     }
   };
-
   const checkAdminRole = async (userId: string) => {
     try {
-      const { data, error } = await supabase.rpc('has_role', {
+      const {
+        data,
+        error
+      } = await supabase.rpc('has_role', {
         _user_id: userId,
         _role: 'admin'
       });
@@ -83,7 +90,6 @@ const Chat = () => {
       console.error('Error checking admin role:', error);
     }
   };
-
   const subscribeToMessages = () => {
     const channel = supabase.channel('messages').on('postgres_changes', {
       event: '*',
@@ -97,10 +103,14 @@ const Chat = () => {
       supabase.removeChannel(channel);
     };
   };
-
   const loadMessages = async () => {
     if (!currentConversationId) return;
-    const { data, error } = await supabase.from('messages').select('*').eq('conversation_id', currentConversationId).order('created_at', { ascending: true });
+    const {
+      data,
+      error
+    } = await supabase.from('messages').select('*').eq('conversation_id', currentConversationId).order('created_at', {
+      ascending: true
+    });
     if (error) {
       toast({
         title: 'خطا در بارگذاری پیام‌ها',
@@ -111,7 +121,6 @@ const Chat = () => {
     }
     setMessages((data || []) as Message[]);
   };
-
   const createNewConversation = async (): Promise<string | null> => {
     if (!user) return null;
     try {
@@ -120,7 +129,10 @@ const Chat = () => {
           updated_at: new Date().toISOString()
         }).eq('id', currentConversationId);
       }
-      const { data, error } = await supabase.from('conversations').insert([{
+      const {
+        data,
+        error
+      } = await supabase.from('conversations').insert([{
         user_id: user.id,
         title: 'گفتگوی جدید'
       }]).select().single();
@@ -141,21 +153,17 @@ const Chat = () => {
       return null;
     }
   };
-
   const handleRegenerateResponse = async (messageContent: string, messageId: string) => {
     if (!currentConversationId) return;
-    
     setLoading(true);
     try {
       // Get all messages up to and including the edited message
-      const { data: allMessages } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', currentConversationId)
-        .order('created_at', { ascending: true });
-
+      const {
+        data: allMessages
+      } = await supabase.from('messages').select('*').eq('conversation_id', currentConversationId).order('created_at', {
+        ascending: true
+      });
       if (!allMessages) return;
-
       const messageIndex = allMessages.findIndex(m => m.id === messageId);
       const relevantMessages = allMessages.slice(0, messageIndex + 1);
 
@@ -172,12 +180,14 @@ const Chat = () => {
           messages: relevantMessages.map(m => ({
             role: m.role,
             content: m.content,
-            ...(m.image_url && { image_url: m.image_url, type: 'image_url' })
+            ...(m.image_url && {
+              image_url: m.image_url,
+              type: 'image_url'
+            })
           })),
           userId: user?.id
         })
       });
-
       if (!resp.ok || !resp.body) {
         let errText = 'خطا در دریافت پاسخ';
         try {
@@ -196,11 +206,15 @@ const Chat = () => {
       const decoder = new TextDecoder();
       let textBuffer = '';
       let streamDone = false;
-      
       while (!streamDone) {
-        const { done, value } = await reader.read();
+        const {
+          done,
+          value
+        } = await reader.read();
         if (done) break;
-        textBuffer += decoder.decode(value, { stream: true });
+        textBuffer += decoder.decode(value, {
+          stream: true
+        });
         let newlineIndex: number;
         while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
           let line = textBuffer.slice(0, newlineIndex);
@@ -221,7 +235,10 @@ const Chat = () => {
               setMessages(prev => {
                 const exists = prev.find(m => m.id === tempMessageId);
                 if (exists) {
-                  return prev.map(m => m.id === tempMessageId ? { ...m, content: fullResponse } : m);
+                  return prev.map(m => m.id === tempMessageId ? {
+                    ...m,
+                    content: fullResponse
+                  } : m);
                 }
                 return [...prev, {
                   id: tempMessageId,
@@ -256,7 +273,6 @@ const Chat = () => {
       setLoading(false);
     }
   };
-
   const handleSendMessage = async (content: string, imageUrl?: string, fileUrl?: string) => {
     let conversationId = currentConversationId;
     if (!conversationId) {
@@ -266,19 +282,16 @@ const Chat = () => {
     setLoading(true);
     try {
       // Add user message
-      const { data: insertedMessage, error: messageError } = await supabase
-        .from('messages')
-        .insert([{
-          conversation_id: conversationId,
-          role: 'user',
-          content,
-          image_url: imageUrl
-        }])
-        .select()
-        .single();
-
+      const {
+        data: insertedMessage,
+        error: messageError
+      } = await supabase.from('messages').insert([{
+        conversation_id: conversationId,
+        role: 'user',
+        content,
+        image_url: imageUrl
+      }]).select().single();
       if (messageError) throw messageError;
-
       if (insertedMessage) {
         setMessages(prev => [...prev, insertedMessage as Message]);
       }
@@ -296,16 +309,21 @@ const Chat = () => {
           messages: messages.map(m => ({
             role: m.role,
             content: m.content,
-            ...(m.image_url && { image_url: m.image_url, type: 'image_url' })
+            ...(m.image_url && {
+              image_url: m.image_url,
+              type: 'image_url'
+            })
           })).concat([{
             role: 'user',
             content,
-            ...(imageUrl && { image_url: imageUrl, type: 'image_url' })
+            ...(imageUrl && {
+              image_url: imageUrl,
+              type: 'image_url'
+            })
           }]),
           userId: user?.id
         })
       });
-      
       if (!resp.ok || !resp.body) {
         let errText = 'خطا در دریافت پاسخ';
         try {
@@ -325,9 +343,14 @@ const Chat = () => {
       let textBuffer = '';
       let streamDone = false;
       while (!streamDone) {
-        const { done, value } = await reader.read();
+        const {
+          done,
+          value
+        } = await reader.read();
         if (done) break;
-        textBuffer += decoder.decode(value, { stream: true });
+        textBuffer += decoder.decode(value, {
+          stream: true
+        });
         let newlineIndex: number;
         while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
           let line = textBuffer.slice(0, newlineIndex);
@@ -349,7 +372,10 @@ const Chat = () => {
               setMessages(prev => {
                 const exists = prev.find(m => m.id === tempMessageId);
                 if (exists) {
-                  return prev.map(m => m.id === tempMessageId ? { ...m, content: fullResponse } : m);
+                  return prev.map(m => m.id === tempMessageId ? {
+                    ...m,
+                    content: fullResponse
+                  } : m);
                 }
                 return [...prev, {
                   id: tempMessageId,
@@ -389,7 +415,6 @@ const Chat = () => {
       setLoading(false);
     }
   };
-
   const exportToPDF = () => {
     const doc = new jsPDF();
     let yPosition = 20;
@@ -408,18 +433,10 @@ const Chat = () => {
       description: 'گفتگو به صورت PDF ذخیره شد'
     });
   };
-
-  return (
-    <div className="flex h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden relative">
+  return <div className="flex h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden relative">
       <div className="absolute inset-0 bg-[var(--gradient-mesh)] pointer-events-none opacity-40" />
       
-      <ChatSidebar 
-        currentConversationId={currentConversationId} 
-        onConversationSelect={setCurrentConversationId} 
-        onNewConversation={createNewConversation} 
-        isOpen={sidebarOpen} 
-        onToggle={() => setSidebarOpen(!sidebarOpen)} 
-      />
+      <ChatSidebar currentConversationId={currentConversationId} onConversationSelect={setCurrentConversationId} onNewConversation={createNewConversation} isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
 
       <div className="flex-1 flex flex-col min-w-0 relative z-10">
         <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 border-b border-border/50 bg-card/80 backdrop-blur-xl">
@@ -429,13 +446,12 @@ const Chat = () => {
             </Button>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-secondary animate-pulse" />
-              <h2 className="text-base sm:text-lg md:text-xl font-bold gradient-text truncate">دستیار هوشمند</h2>
+              <h2 className="text-base sm:text-lg md:text-xl font-bold gradient-text truncate">As </h2>
             </div>
           </div>
 
           <div className="flex gap-1 flex-shrink-0">
-            {isAdmin && (
-              <>
+            {isAdmin && <>
                 <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3 hover:bg-primary/10 hover:border-primary/50 transition-all">
                   <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline text-xs sm:text-sm">پنل</span>
@@ -444,8 +460,7 @@ const Chat = () => {
                   <User className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline text-xs sm:text-sm">کاربران</span>
                 </Button>
-              </>
-            )}
+              </>}
             <Button variant="outline" size="sm" onClick={() => navigate('/materials')} className="gap-1 h-8 px-2 sm:h-9 sm:px-3 hover:bg-accent/10 hover:border-accent/50 transition-all">
               <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline text-xs sm:text-sm">مواد</span>
@@ -455,26 +470,21 @@ const Chat = () => {
               <span className="hidden sm:inline text-xs sm:text-sm">اخبار</span>
             </Button>
             
-            {messages.length > 0 && (
-              <Button variant="outline" size="sm" onClick={exportToPDF} className="gap-1 h-8 px-2 sm:h-9 sm:px-3 hover:bg-primary/10 hover:border-primary/50 transition-all">
+            {messages.length > 0 && <Button variant="outline" size="sm" onClick={exportToPDF} className="gap-1 h-8 px-2 sm:h-9 sm:px-3 hover:bg-primary/10 hover:border-primary/50 transition-all">
                 <FileDown className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden md:inline text-xs sm:text-sm">PDF</span>
-              </Button>
-            )}
+              </Button>}
           </div>
         </div>
 
         <AdDisplay position="chat_top" />
 
         <ScrollArea className="flex-1 p-2 sm:p-3 md:p-4">
-          {loading && messages.length === 0 && (
-            <div className="flex justify-center items-center h-full">
+          {loading && messages.length === 0 && <div className="flex justify-center items-center h-full">
               <Loader2 className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 animate-spin text-primary" />
-            </div>
-          )}
+            </div>}
 
-          {messages.length === 0 && !loading && (
-            <div className="flex flex-col items-center justify-center h-full text-center p-3 sm:p-4 md:p-8">
+          {messages.length === 0 && !loading && <div className="flex flex-col items-center justify-center h-full text-center p-3 sm:p-4 md:p-8">
               <div className="mb-6 relative">
                 <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-elegant animate-float">
                   <MessageSquare className="w-10 h-10 text-primary-foreground" />
@@ -503,21 +513,10 @@ const Chat = () => {
                   <p className="text-xs font-medium">جستجو</p>
                 </div>
               </div>
-            </div>
-          )}
+            </div>}
 
           <div className="space-y-2 sm:space-y-3 md:space-y-4 max-w-4xl mx-auto">
-            {messages.map(message => (
-              <ChatMessage 
-                key={message.id} 
-                id={message.id} 
-                role={message.role} 
-                content={message.content} 
-                imageUrl={message.image_url} 
-                onUpdate={loadMessages}
-                onRegenerateResponse={handleRegenerateResponse}
-              />
-            ))}
+            {messages.map(message => <ChatMessage key={message.id} id={message.id} role={message.role} content={message.content} imageUrl={message.image_url} onUpdate={loadMessages} onRegenerateResponse={handleRegenerateResponse} />)}
             <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
@@ -526,8 +525,6 @@ const Chat = () => {
 
         <ChatInput onSendMessage={handleSendMessage} loading={loading} />
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Chat;
