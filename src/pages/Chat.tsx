@@ -470,10 +470,7 @@ const Chat = () => {
               <span className="hidden sm:inline text-xs sm:text-sm">اخبار</span>
             </Button>
             
-            {messages.length > 0 && <Button variant="outline" size="sm" onClick={exportToPDF} className="gap-1 h-8 px-2 sm:h-9 sm:px-3 hover:bg-primary/10 hover:border-primary/50 transition-all">
-                <FileDown className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden md:inline text-xs sm:text-sm">PDF</span>
-              </Button>}
+            {messages.length > 0}
           </div>
         </div>
 
