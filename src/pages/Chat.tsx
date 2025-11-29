@@ -192,7 +192,18 @@ const Chat = () => {
         let errText = 'خطا در دریافت پاسخ';
         try {
           const errorData = await resp.json();
-          errText = errorData.error || errText;
+          if (errorData.error) {
+            errText = errorData.error;
+            // Show specific error messages for rate limits and credits
+            if (resp.status === 429 || resp.status === 402) {
+              toast({
+                title: resp.status === 429 ? 'محدودیت تعداد درخواست' : 'اعتبار تمام شده',
+                description: errText,
+                variant: 'destructive',
+              });
+              return;
+            }
+          }
         } catch {}
         throw new Error(errText);
       }
@@ -328,7 +339,18 @@ const Chat = () => {
         let errText = 'خطا در دریافت پاسخ';
         try {
           const errorData = await resp.json();
-          errText = errorData.error || errText;
+          if (errorData.error) {
+            errText = errorData.error;
+            // Show specific error messages for rate limits and credits
+            if (resp.status === 429 || resp.status === 402) {
+              toast({
+                title: resp.status === 429 ? 'محدودیت تعداد درخواست' : 'اعتبار تمام شده',
+                description: errText,
+                variant: 'destructive',
+              });
+              return;
+            }
+          }
         } catch {}
         throw new Error(errText);
       }
@@ -476,44 +498,92 @@ const Chat = () => {
 
         <AdDisplay position="chat_top" />
 
-        <ScrollArea className="flex-1 p-2 sm:p-3 md:p-4">
-          {loading && messages.length === 0 && <div className="flex justify-center items-center h-full">
-              <Loader2 className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 animate-spin text-primary" />
-            </div>}
-
-          {messages.length === 0 && !loading && <div className="flex flex-col items-center justify-center h-full text-center p-3 sm:p-4 md:p-8">
-              <div className="mb-6 relative">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-elegant animate-float">
-                  <MessageSquare className="w-10 h-10 text-primary-foreground" />
-                </div>
-                <div className="absolute -inset-1 bg-gradient-to-br from-primary/50 to-secondary/50 rounded-2xl blur-xl opacity-50 -z-10" />
+        <ScrollArea className="flex-1 p-3 sm:p-4 md:p-6">
+          {loading && messages.length === 0 && (
+            <div className="flex justify-center items-center h-full">
+              <div className="relative">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                <div className="absolute inset-0 h-10 w-10 rounded-full border-4 border-primary/20 animate-pulse" />
               </div>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 gradient-text">خوش آمدیدAS به</h3>
-              <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-md">
+            </div>
+          )}
+
+          {messages.length === 0 && !loading && (
+            <div className="flex flex-col items-center justify-center h-full text-center p-4 sm:p-6 md:p-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              {/* Enhanced welcome icon */}
+              <div className="mb-8 relative">
+                <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center shadow-elegant animate-float">
+                  <MessageSquare className="w-12 h-12 text-white drop-shadow-lg" />
+                </div>
+                <div className="absolute -inset-2 bg-gradient-to-br from-primary/60 via-secondary/40 to-accent/30 rounded-3xl blur-2xl opacity-70 -z-10 animate-pulse-glow" />
+                
+                {/* Decorative sparkles */}
+                <div className="absolute -top-2 -right-2 w-4 h-4 bg-primary rounded-full animate-pulse shadow-glow" />
+                <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-secondary rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
+                <div className="absolute top-0 left-0 w-2 h-2 bg-accent rounded-full animate-pulse" style={{ animationDelay: '0.6s' }} />
+              </div>
+              
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-decorative mb-4 gradient-text drop-shadow-lg animate-in zoom-in duration-500" style={{ animationDelay: '0.1s' }}>
+                خوش آمدید به دستیار هوشمند
+              </h3>
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mb-8 leading-relaxed animate-in fade-in duration-500" style={{ animationDelay: '0.2s' }}>
                 می‌توانید سوال بپرسید، تصویر بفرستید، فایل آپلود کنید یا با صدا صحبت کنید
               </p>
-              <div className="mt-6 grid grid-cols-2 gap-3 max-w-md w-full">
-                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-all">
-                  <ImageIcon className="w-5 h-5 text-primary mb-1" />
-                  <p className="text-xs font-medium">تصویر</p>
+              
+              {/* Enhanced feature cards */}
+              <div className="grid grid-cols-2 gap-4 max-w-lg w-full animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '0.3s' }}>
+                <div className="group p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/30 hover:border-primary/50 hover:bg-primary/15 hover:scale-105 hover:shadow-lg transition-all duration-300 cursor-pointer">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center mb-2 group-hover:rotate-12 transition-transform duration-300 shadow-md">
+                    <ImageIcon className="w-4 h-4 text-white" />
+                  </div>
+                  <p className="text-sm font-bold text-primary">ارسال تصویر</p>
+                  <p className="text-xs text-muted-foreground mt-1">تحلیل و پاسخ به تصاویر</p>
                 </div>
-                <div className="p-3 rounded-lg bg-secondary/5 border border-secondary/20 hover:bg-secondary/10 transition-all">
-                  <Paperclip className="w-5 h-5 text-secondary mb-1" />
-                  <p className="text-xs font-medium">فایل</p>
+                
+                <div className="group p-4 rounded-2xl bg-gradient-to-br from-secondary/10 to-secondary/5 border border-secondary/30 hover:border-secondary/50 hover:bg-secondary/15 hover:scale-105 hover:shadow-lg transition-all duration-300 cursor-pointer">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary-hover flex items-center justify-center mb-2 group-hover:rotate-12 transition-transform duration-300 shadow-md">
+                    <Paperclip className="w-4 h-4 text-white" />
+                  </div>
+                  <p className="text-sm font-bold text-secondary">آپلود فایل</p>
+                  <p className="text-xs text-muted-foreground mt-1">پردازش اسناد و فایل‌ها</p>
                 </div>
-                <div className="p-3 rounded-lg bg-accent/5 border border-accent/20 hover:bg-accent/10 transition-all">
-                  <Mic className="w-5 h-5 text-accent mb-1" />
-                  <p className="text-xs font-medium">صوت</p>
+                
+                <div className="group p-4 rounded-2xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/30 hover:border-accent/50 hover:bg-accent/15 hover:scale-105 hover:shadow-lg transition-all duration-300 cursor-pointer">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center mb-2 group-hover:rotate-12 transition-transform duration-300 shadow-md">
+                    <Mic className="w-4 h-4 text-white" />
+                  </div>
+                  <p className="text-sm font-bold text-accent">پیام صوتی</p>
+                  <p className="text-xs text-muted-foreground mt-1">گفتگو با صدا</p>
                 </div>
-                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-all">
-                  <Search className="w-5 h-5 text-primary mb-1" />
-                  <p className="text-xs font-medium">جستجو</p>
+                
+                <div className="group p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/30 hover:border-accent/50 hover:bg-accent/15 hover:scale-105 hover:shadow-lg transition-all duration-300 cursor-pointer">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center mb-2 group-hover:rotate-12 transition-transform duration-300 shadow-md">
+                    <Search className="w-4 h-4 text-white" />
+                  </div>
+                  <p className="text-sm font-bold gradient-text">جستجو هوشمند</p>
+                  <p className="text-xs text-muted-foreground mt-1">یافتن اطلاعات دقیق</p>
                 </div>
               </div>
-            </div>}
+            </div>
+          )}
 
-          <div className="space-y-2 sm:space-y-3 md:space-y-4 max-w-4xl mx-auto">
-            {messages.map(message => <ChatMessage key={message.id} id={message.id} role={message.role} content={message.content} imageUrl={message.image_url} onUpdate={loadMessages} onRegenerateResponse={handleRegenerateResponse} />)}
+          <div className="space-y-3 sm:space-y-4 md:space-y-5 max-w-5xl mx-auto">
+            {messages.map((message, index) => (
+              <div 
+                key={message.id} 
+                className="animate-in fade-in slide-in-from-bottom-4 duration-300"
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
+                <ChatMessage 
+                  id={message.id} 
+                  role={message.role} 
+                  content={message.content} 
+                  imageUrl={message.image_url} 
+                  onUpdate={loadMessages} 
+                  onRegenerateResponse={handleRegenerateResponse} 
+                />
+              </div>
+            ))}
             <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
