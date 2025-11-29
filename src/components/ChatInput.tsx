@@ -35,10 +35,21 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
       return;
     }
 
-    if (selectedFile.size > 10 * 1024 * 1024) {
+    if (selectedFile.size > 20 * 1024 * 1024) {
       toast({
         title: 'خطا',
-        description: 'حجم فایل نباید بیشتر از 10 مگابایت باشد',
+        description: 'حجم تصویر نباید بیشتر از 20 مگابایت باشد',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validate image format
+    const validFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validFormats.includes(selectedFile.type)) {
+      toast({
+        title: 'خطا',
+        description: 'فرمت تصویر باید JPG، PNG یا WEBP باشد',
         variant: 'destructive'
       });
       return;
