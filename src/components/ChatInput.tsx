@@ -276,39 +276,49 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
   };
 
   return (
-    <div className="border-t border-border/50 bg-card/80 backdrop-blur-xl p-2 sm:p-3 md:p-4">
+    <div className="border-t border-border/30 bg-card/70 backdrop-blur-2xl p-3 sm:p-4 md:p-5 shadow-lg">
+      {/* Image preview with enhanced styling */}
       {imagePreview && (
-        <div className="mb-2 sm:mb-3 relative inline-block group">
-          <img src={imagePreview} alt="Preview" className="max-h-24 sm:max-h-32 rounded-xl border-2 border-primary/20 shadow-md" />
+        <div className="mb-3 relative inline-block group animate-in fade-in zoom-in duration-300">
+          <img 
+            src={imagePreview} 
+            alt="Preview" 
+            className="max-h-28 sm:max-h-36 rounded-2xl border-2 border-primary/30 shadow-elegant hover:shadow-glow transition-all" 
+          />
           <Button
             size="sm"
             variant="destructive"
-            className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-6 w-6 sm:h-7 sm:w-7 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-all shadow-lg"
+            className="absolute -top-2 -right-2 h-7 w-7 sm:h-8 sm:w-8 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-all shadow-xl hover:scale-110"
             onClick={clearImage}
           >
-            <X className="h-3 w-3 sm:h-4 sm:w-4" />
+            <X className="h-4 w-4" />
           </Button>
         </div>
       )}
 
+      {/* File preview with enhanced styling */}
       {file && (
-        <div className="mb-2 sm:mb-3 flex items-center gap-2 p-3 bg-accent/10 rounded-xl border border-accent/20 group hover:bg-accent/15 transition-all">
-          <div className="p-2 bg-accent/20 rounded-lg">
-            <Paperclip className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 text-accent" />
+        <div className="mb-3 flex items-center gap-3 p-4 bg-gradient-to-r from-accent/10 to-accent/5 rounded-2xl border border-accent/30 group hover:bg-accent/15 hover:scale-[1.02] transition-all shadow-md animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="p-2.5 bg-gradient-to-br from-accent to-accent-hover rounded-xl shadow-md">
+            <Paperclip className="h-4 w-4 text-white" />
           </div>
-          <span className="text-xs sm:text-sm flex-1 truncate font-medium">{file.name}</span>
+          <div className="flex-1 min-w-0">
+            <span className="text-sm font-bold truncate block">{file.name}</span>
+            <span className="text-xs text-muted-foreground">آماده برای ارسال</span>
+          </div>
           <Button
             size="sm"
             variant="ghost"
-            className="h-6 w-6 sm:h-7 sm:w-7 p-0 flex-shrink-0 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
+            className="h-8 w-8 p-0 flex-shrink-0 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive hover:scale-110 transition-all rounded-xl"
             onClick={clearFile}
           >
-            <X className="h-3 w-3 sm:h-4 sm:w-4" />
+            <X className="h-4 w-4" />
           </Button>
         </div>
       )}
 
-      <div className="flex gap-1 sm:gap-2 items-end">
+      {/* Input area with enhanced design */}
+      <div className="flex gap-2 items-end">
         <input
           ref={imageInputRef}
           type="file"
@@ -323,58 +333,74 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
           className="hidden"
         />
 
+        {/* Image button */}
         <Button
           type="button"
           size="icon"
           variant="outline"
           onClick={() => imageInputRef.current?.click()}
           disabled={loading}
-          className="h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0 hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all"
+          className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 border-primary/30 bg-primary/5 hover:bg-primary/15 hover:border-primary/50 hover:text-primary hover:scale-110 transition-all rounded-xl shadow-sm"
         >
-          <ImageIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+          <ImageIcon className="h-5 w-5" />
         </Button>
 
+        {/* File button */}
         <Button
           type="button"
           size="icon"
           variant="outline"
           onClick={() => fileInputRef.current?.click()}
           disabled={loading}
-          className="h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0 hover:bg-secondary/10 hover:border-secondary/50 hover:text-secondary transition-all"
+          className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 border-secondary/30 bg-secondary/5 hover:bg-secondary/15 hover:border-secondary/50 hover:text-secondary hover:scale-110 transition-all rounded-xl shadow-sm"
         >
-          <Paperclip className="h-4 w-4 sm:h-5 sm:w-5" />
+          <Paperclip className="h-5 w-5" />
         </Button>
 
+        {/* Mic button */}
         <Button
           type="button"
           size="icon"
           variant="outline"
           onClick={isRecording ? stopRecording : startRecording}
           disabled={loading}
-          className={`h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0 transition-all ${isRecording ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90 animate-pulse' : 'hover:bg-accent/10 hover:border-accent/50 hover:text-accent'}`}
+          className={`h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 transition-all rounded-xl shadow-sm ${
+            isRecording 
+              ? 'bg-gradient-to-br from-destructive to-destructive/80 text-white border-destructive hover:scale-110 animate-pulse shadow-elegant' 
+              : 'border-accent/30 bg-accent/5 hover:bg-accent/15 hover:border-accent/50 hover:text-accent hover:scale-110'
+          }`}
         >
-          {isRecording ? <Square className="h-4 w-4 sm:h-5 sm:w-5" /> : <Mic className="h-4 w-4 sm:h-5 sm:w-5" />}
+          {isRecording ? (
+            <Square className="h-5 w-5" />
+          ) : (
+            <Mic className="h-5 w-5" />
+          )}
         </Button>
 
+        {/* Text input */}
         <Textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="پیام خود را بنویسید..."
-          className="min-h-[36px] sm:min-h-[44px] max-h-32 resize-none text-sm bg-background/50 border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all"
+          placeholder="پیام خود را بنویسید... 💬"
+          className="min-h-[40px] sm:min-h-[48px] max-h-36 resize-none text-sm sm:text-base bg-background/60 border-border/40 focus:border-primary/60 focus:ring-primary/30 rounded-2xl transition-all shadow-sm placeholder:text-muted-foreground/60"
           disabled={loading}
         />
 
+        {/* Send button with sparkle effect */}
         <Button
           onClick={handleSubmit}
           disabled={loading || (!message.trim() && !imageFile && !file)}
           size="icon"
-          className="h-9 w-9 sm:h-11 sm:w-11 flex-shrink-0 bg-gradient-to-br from-primary via-accent to-secondary hover:shadow-glow hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
+          className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 bg-gradient-to-br from-primary via-secondary to-accent hover:shadow-glow hover:scale-110 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100 group rounded-xl shadow-button relative overflow-hidden"
         >
+          {/* Shimmer effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+          
           {loading ? (
-            <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+            <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
-            <Send className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            <Send className="h-5 w-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
           )}
         </Button>
       </div>
