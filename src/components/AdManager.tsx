@@ -169,13 +169,34 @@ const AdManager = () => {
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
+                <div className="space-y-2">
                   <Label>URL تصویر</Label>
                   <Input
                     value={formData.image_url}
                     onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
                     placeholder="https://..."
                   />
+                  {formData.image_url && (
+                    <div className="relative">
+                      <img 
+                        src={formData.image_url} 
+                        alt="Preview" 
+                        className="w-full h-20 object-cover rounded border"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="destructive"
+                        className="absolute top-1 left-1 h-5 w-5 p-0 text-xs"
+                        onClick={() => setFormData({ ...formData, image_url: '' })}
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <Label>لینک</Label>

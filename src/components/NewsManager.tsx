@@ -224,14 +224,13 @@ export function NewsManager() {
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
+                <div className="space-y-2">
                   <Label>تصویر</Label>
                   <Input
                     type="file"
                     accept="image/*"
                     onChange={(e) => handleFileUpload(e, 'image')}
                     disabled={uploading}
-                    className="mb-2"
                   />
                   <Input
                     value={formData.image_url}
@@ -239,15 +238,35 @@ export function NewsManager() {
                     placeholder="یا URL تصویر..."
                     disabled={uploading}
                   />
+                  {formData.image_url && (
+                    <div className="relative">
+                      <img 
+                        src={formData.image_url} 
+                        alt="Preview" 
+                        className="w-full h-24 object-cover rounded border"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="destructive"
+                        className="absolute top-1 left-1 h-6 w-6 p-0"
+                        onClick={() => setFormData({ ...formData, image_url: '' })}
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  )}
                 </div>
-                <div>
+                <div className="space-y-2">
                   <Label>ویدیو</Label>
                   <Input
                     type="file"
                     accept="video/*"
                     onChange={(e) => handleFileUpload(e, 'video')}
                     disabled={uploading}
-                    className="mb-2"
                   />
                   <Input
                     value={formData.video_url}
@@ -255,6 +274,24 @@ export function NewsManager() {
                     placeholder="یا URL ویدیو..."
                     disabled={uploading}
                   />
+                  {formData.video_url && (
+                    <div className="relative">
+                      <video 
+                        src={formData.video_url} 
+                        className="w-full h-24 object-cover rounded border"
+                        controls
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="destructive"
+                        className="absolute top-1 left-1 h-6 w-6 p-0"
+                        onClick={() => setFormData({ ...formData, video_url: '' })}
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
               <div>
