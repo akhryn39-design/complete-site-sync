@@ -50,8 +50,17 @@ CREATE FUNCTION public.handle_new_user() RETURNS trigger
     SET search_path TO 'public'
     AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name)
-  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', 'کاربر'));
+  INSERT INTO public.profiles (id, full_name, avatar_url)
+  VALUES (
+    NEW.id, 
+    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email, 'کاربر'),
+    NEW.raw_user_meta_data->>'avatar_url'
+  )
+  ON CONFLICT (id) DO UPDATE
+  SET 
+    full_name = COALESCE(EXCLUDED.full_name, profiles.full_name),
+    avatar_url = COALESCE(EXCLUDED.avatar_url, profiles.avatar_url),
+    updated_at = now();
   RETURN NEW;
 END;
 $$;
@@ -354,6 +363,62 @@ ALTER TABLE ONLY public.user_roles
 
 
 --
+-- Name: advertisements Admins can delete ads; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can delete ads" ON public.advertisements FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
+
+
+--
+-- Name: news Admins can delete news; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can delete news" ON public.news FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
+
+
+--
+-- Name: advertisements Admins can insert ads; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can insert ads" ON public.advertisements FOR INSERT TO authenticated WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
+
+
+--
+-- Name: news Admins can insert news; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can insert news" ON public.news FOR INSERT TO authenticated WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
+
+
+--
+-- Name: advertisements Admins can select all ads; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can select all ads" ON public.advertisements FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
+
+
+--
+-- Name: news Admins can select all news; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can select all news" ON public.news FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
+
+
+--
+-- Name: advertisements Admins can update ads; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can update ads" ON public.advertisements FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
+
+
+--
+-- Name: news Admins can update news; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Admins can update news" ON public.news FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
+
+
+--
 -- Name: user_roles Anyone can check roles; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -389,24 +454,10 @@ CREATE POLICY "Anyone can view settings" ON public.system_settings FOR SELECT US
 
 
 --
--- Name: advertisements Only admins can manage ads; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Only admins can manage ads" ON public.advertisements USING (public.has_role(auth.uid(), 'admin'::public.app_role));
-
-
---
 -- Name: educational_materials Only admins can manage materials; Type: POLICY; Schema: public; Owner: -
 --
 
 CREATE POLICY "Only admins can manage materials" ON public.educational_materials USING (public.has_role(auth.uid(), 'admin'::public.app_role));
-
-
---
--- Name: news Only admins can manage news; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Only admins can manage news" ON public.news USING (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
 --
