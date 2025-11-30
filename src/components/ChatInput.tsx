@@ -4,13 +4,16 @@ import { Textarea } from './ui/textarea';
 import { Send, Image as ImageIcon, Loader2, X, Mic, Square, Paperclip, Sparkles } from 'lucide-react';
 import { useToast } from './ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { RequestDialog } from './RequestDialog';
 
 interface ChatInputProps {
   onSendMessage: (content: string, imageUrl?: string, fileUrl?: string) => void;
   loading: boolean;
+  mode?: 'ai' | 'search';
+  remainingMessages?: number;
 }
 
-const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
+const ChatInput = ({ onSendMessage, loading, mode = 'ai', remainingMessages = 10 }: ChatInputProps) => {
   const [message, setMessage] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -343,6 +346,16 @@ const ChatInput = ({ onSendMessage, loading }: ChatInputProps) => {
           onChange={handleFileUpload}
           className="hidden"
         />
+
+        {/* Mode indicator and request button */}
+        <div className="flex items-center gap-2 shrink-0">
+          {mode === 'ai' && remainingMessages < 999 && (
+            <div className="text-xs text-muted-foreground px-2 py-1 bg-muted/50 rounded-md whitespace-nowrap">
+              {remainingMessages} پیام
+            </div>
+          )}
+          <RequestDialog />
+        </div>
 
         {/* Image button */}
         <Button

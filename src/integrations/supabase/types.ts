@@ -211,6 +211,59 @@ export type Database = {
         }
         Relationships: []
       }
+      requests: {
+        Row: {
+          admin_response: string | null
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          material_id: string | null
+          responded_at: string | null
+          responded_by: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_response?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          material_id?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_response?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          material_id?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requests_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "educational_materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       system_settings: {
         Row: {
           category: string
@@ -238,6 +291,30 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      user_daily_limits: {
+        Row: {
+          created_at: string
+          id: string
+          last_reset_date: string
+          messages_today: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_reset_date?: string
+          messages_today?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_reset_date?: string
+          messages_today?: number
+          user_id?: string
         }
         Relationships: []
       }

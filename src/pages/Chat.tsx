@@ -5,10 +5,12 @@ import ChatSidebar from '@/components/ChatSidebar';
 import ChatMessage from '@/components/ChatMessage';
 import ChatInput from '@/components/ChatInput';
 import AdDisplay from '@/components/AdDisplay';
+import { ChatModeToggle } from '@/components/ChatModeToggle';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { FileDown, Loader2, Menu, MessageSquare, Search, ImageIcon, BookOpen, Newspaper, Shield, User, Paperclip, Mic } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAILimits } from '@/hooks/useAILimits';
 import jsPDF from 'jspdf';
 interface Message {
   id: string;
@@ -19,15 +21,15 @@ interface Message {
 }
 const Chat = () => {
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const { remainingMessages, canSendMessage, incrementUsage, refreshLimits } = useAILimits();
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [chatMode, setChatMode] = useState<'ai' | 'search'>('ai');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     checkAuth();
@@ -285,26 +287,85 @@ const Chat = () => {
     }
   };
   const handleSendMessage = async (content: string, imageUrl?: string, fileUrl?: string) => {
+    // Check AI limits if in AI mode
+    if (chatMode === 'ai' && !canSendMessage) {
+      toast({
+        title: 'محدودیت روزانه',
+        description: 'محدودیت روزانه شما تمام شده است. فردا دوباره تلاش کنید.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     let conversationId = currentConversationId;
     if (!conversationId) {
       conversationId = await createNewConversation();
       if (!conversationId) return;
     }
+
     setLoading(true);
+
     try {
       // Add user message
-      const {
-        data: insertedMessage,
-        error: messageError
-      } = await supabase.from('messages').insert([{
-        conversation_id: conversationId,
-        role: 'user',
-        content,
-        image_url: imageUrl
-      }]).select().single();
+      const { data: insertedMessage, error: messageError } = await supabase
+        .from('messages')
+        .insert([{
+          conversation_id: conversationId,
+          role: 'user',
+          content,
+          image_url: imageUrl
+        }])
+        .select()
+        .single();
+
       if (messageError) throw messageError;
       if (insertedMessage) {
         setMessages(prev => [...prev, insertedMessage as Message]);
+      }
+
+      // Handle search mode
+      if (chatMode === 'search') {
+        const { data: materials } = await supabase
+          .from('educational_materials')
+          .select('*')
+          .or(`title.ilike.%${content}%,description.ilike.%${content}%,category.ilike.%${content}%`)
+          .limit(10);
+
+        let searchResult = '📚 **نتایج جستجو:**\n\n';
+        if (!materials || materials.length === 0) {
+          searchResult += 'هیچ نتیجه‌ای یافت نشد. لطفاً کلمات کلیدی دیگری امتحان کنید.';
+        } else {
+          const storageBaseUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/educational-files`;
+          materials.forEach((m, i) => {
+            const encodedPath = encodeURIComponent(m.file_path).replace(/%2F/g, '/');
+            const downloadUrl = `${storageBaseUrl}/${encodedPath}`;
+            searchResult += `${i + 1}. **${m.title}**\n`;
+            searchResult += `   📁 دسته: ${m.category}\n`;
+            if (m.description) searchResult += `   📝 ${m.description}\n`;
+            searchResult += `   🔗 ${downloadUrl}\n\n`;
+          });
+        }
+
+        // Save search result as assistant message
+        const { error: assistantError } = await supabase
+          .from('messages')
+          .insert([{
+            conversation_id: conversationId,
+            role: 'assistant',
+            content: searchResult
+          }]);
+
+        if (assistantError) throw assistantError;
+        await loadMessages();
+        setLoading(false);
+        return;
+      }
+
+      // Increment AI usage
+      const canProceed = await incrementUsage();
+      if (!canProceed) {
+        setLoading(false);
+        return;
       }
 
       // Get AI response with streaming
@@ -590,7 +651,12 @@ const Chat = () => {
 
         <AdDisplay position="chat_bottom" />
 
-        <ChatInput onSendMessage={handleSendMessage} loading={loading} />
+        <ChatInput 
+          onSendMessage={handleSendMessage} 
+          loading={loading} 
+          mode={chatMode}
+          remainingMessages={remainingMessages}
+        />
       </div>
     </div>;
 };
