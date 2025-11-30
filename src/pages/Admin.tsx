@@ -17,7 +17,8 @@ import {
   BookOpen,
   BarChart3,
   Database,
-  Shield
+  Shield,
+  FileText
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -127,10 +128,20 @@ const Admin = () => {
               </p>
             </div>
           </div>
-          <Badge variant="outline" className="gap-2 self-start sm:self-center">
-            <Shield className="w-4 h-4" />
-            مدیر سیستم
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => navigate('/requests')}
+              variant="outline"
+              className="gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              <span className="hidden sm:inline">درخواست‌ها</span>
+            </Button>
+            <Badge variant="outline" className="gap-2">
+              <Shield className="w-4 h-4" />
+              <span className="hidden sm:inline">مدیر سیستم</span>
+            </Badge>
+          </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
